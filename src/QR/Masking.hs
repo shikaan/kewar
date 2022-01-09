@@ -1,10 +1,8 @@
 module QR.Masking where
 
-import Data.Array (assocs, bounds, inRange, index, indices, ixmap, (!))
-import Data.Either (Either (Right))
+import Data.Array (bounds, inRange, indices, (!))
 import Data.List (foldl', groupBy)
-import Data.Tuple (swap)
-import QR.ModulePlacement (Grid, Module (Black, White), Position)
+import QR.ModulePlacement (Grid, Module (Black, White), Position, cols, rows)
 import QR.Types (Exception (InvalidMask))
 
 flip :: Module -> Module
@@ -28,38 +26,29 @@ mask typ ((r, c), m)
 sameModuleConsecutive :: [(Position, Module)] -> [[(Position, Module)]]
 sameModuleConsecutive = groupBy (\(_, v) (_, v') -> v == v')
 
--- TODO: move me
-transpose :: Grid -> Grid
-transpose g = ixmap (bounds g) swap g
-
--- end moveme
-
 penalty1 :: Grid -> Int
-penalty1 g = do
-  let rows = groupBy (\((a, _), _) ((c, _), _) -> a == c) (assocs g)
-  let cols = groupBy (\((a, _), _) ((c, _), _) -> a == c) (assocs $ transpose g)
-  let rPenalty = foldl' (\acc r -> acc + sum (map cost $ sameModuleConsecutive r)) 0 rows
-  let cPenalty = foldl' (\acc c -> acc + sum (map cost $ sameModuleConsecutive c)) 0 cols
-  rPenalty + cPenalty
+penalty1 g = (penalty . rows) g + (penalty . cols) g
   where
+    penalty gs = foldl' (\acc r -> acc + sum (map cost $ sameModuleConsecutive r)) 0 gs
     cost group
       | length group < 5 = 0
-      | otherwise = 3 + (length group - 5)
+      | otherwise = length group - 2
 
 penalty2 :: Grid -> Int
 penalty2 g = foldl' (\acc b -> acc + cost b) 0 boxes
   where
     bnds = bounds g
-    
+
     neighbors :: Position -> [Position]
-    neighbors (a, b) = [(a, b), (a + 1, b), (a, b + 1), (a + 1, b + 1)]
-    
-    step :: [[(Position, Module)]] -> (Position, Module) -> [[(Position, Module)]]
-    step l ((a, b), m)
-      | inRange bnds (a + 1, b + 1) = l ++ [map (\p -> (p, m)) (neighbors (a, b))]
+    neighbors (a, b) = [(a + i, b + j) | i <- [0, 1], j <- [0, 1]]
+
+    step :: [[(Position, Module)]] -> Position -> [[(Position, Module)]]
+    step l (a, b)
+      | inRange bnds (a + 1, b + 1) = l ++ [map (\p -> (p, g ! p)) $ neighbors (a, b)]
       | otherwise = l
-    
-    boxes = foldl' step [] (assocs g)
+
+    boxes :: [[(Position, Module)]]
+    boxes = foldl' step [] (indices g)
 
     cost :: [(Position, Module)] -> Int
     cost group

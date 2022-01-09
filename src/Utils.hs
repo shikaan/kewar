@@ -17,12 +17,12 @@ toDec = foldl' (\acc v -> 2 * acc + digitToInt v) 0
 leftPad :: Int -> Char -> String -> String
 leftPad size char str = replicate (size - length str) char ++ str
 
-chunksOf :: Eq a => Int -> [a] -> [[a]]
+chunksOf :: Int -> [a] -> [[a]]
 chunksOf n l = step n l []
   where
-    step n l acc = do
-      if length l <= n
-        then acc ++ [l]
+    step size list acc = do
+      if length list <= size
+        then acc ++ [list]
         else do
-          let (chunk, rest) = splitAt n l
-          step n rest (acc ++ [chunk])
+          let (chunk, rest) = splitAt size list
+          step size rest (acc ++ [chunk])

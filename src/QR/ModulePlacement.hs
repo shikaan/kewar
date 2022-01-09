@@ -1,9 +1,9 @@
-module QR.ModulePlacement (draw, showG, Grid, Position, Module(..)) where
+module QR.ModulePlacement where
 
-import Data.Array (Array, array, assocs, bounds, elems, inRange, indices, listArray, (//))
+import Data.Array (Array, assocs, bounds, elems, inRange, listArray, (//), ixmap)
+import Data.Tuple (swap)
 import Data.Bifunctor (bimap, first)
-import Data.Foldable (foldl')
-import Data.List (intercalate)
+import Data.List (intercalate, groupBy)
 import QR.Constants (alignmentPatternLocations)
 import QR.Types (BitString, Version)
 import Utils (chunksOf)
@@ -46,6 +46,21 @@ singleton = listArray ((0, 0), (0, 0)) [White]
 
 mkGrid :: Size -> Grid
 mkGrid b = listArray b (repeat White)
+
+insertAt :: Grid -> Position -> Module -> Grid
+insertAt g p m = g // [(p, m)]
+
+insert :: Grid -> [(Position, Module)] -> Grid
+insert g as = g // as
+
+transpose :: Grid -> Grid
+transpose g = ixmap (bounds g) swap g
+
+rows :: Grid -> [[(Position, Module)]]
+rows g = groupBy (\((a, _), _) ((c, _), _) -> a == c) (assocs g)
+
+cols :: Grid -> [[(Position, Module)]]
+cols g = groupBy (\((a, _), _) ((c, _), _) -> a == c) (assocs $ transpose g)
 
 sumP :: Position -> Position -> Position
 sumP a = bimap (fst a +) (snd a +)
@@ -103,6 +118,7 @@ timings v = do
 darkModule :: Version -> [(Position, Module)]
 darkModule v = [(((4 * v) + 9, 8), Black)]
 
+separators :: Int -> [(Position, Module)]
 separators v = do
   let topLeft = [((i, 7), White) | i <- [0 .. 7]] ++ [((7, i), White) | i <- [0 .. 6]]
   let topRight = [((i, s - 8), White) | i <- [0 .. 7]] ++ [((7, i), White) | i <- [s -7 .. s -1]]
@@ -112,6 +128,7 @@ separators v = do
   where
     s = size v
 
+formatArea :: Int -> [Position]
 formatArea v = do
   let topRight = [(8, i) | i <- [s -8 .. s -1]]
   let bottomLeft = [(i, 8) | i <- [s -7 .. s -1]]
@@ -120,6 +137,7 @@ formatArea v = do
   where
     s = size v
 
+versionArea :: Int -> [Position]
 versionArea v
   | v < 7 = []
   | otherwise = do
@@ -131,7 +149,8 @@ versionArea v
 
 ---
 -- starting from teh bottom right point
-column (a,b) = [(j, i) | j <- [b -1, b -2 .. 0], i <- [a-1, a-2]]
+column :: (Enum a, Num a, Num b) => (b, a) -> [(a, b)]
+column (a, b) = [(j, i) | j <- [b -1, b -2 .. 0], i <- [a -1, a -2]]
 
 dataBits :: Version -> BitString -> [Position] -> [(Position, Module)]
 dataBits version bitString forbiddenLocations = do
