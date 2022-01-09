@@ -14,54 +14,55 @@ extra-doc-files:     README.md
 tested-with:         GHC == 8.8.3
 
 common common-options
-  build-depends:       base, containers, array
-  
-  ghc-options:         -Wall
-                       -Wcompat
-                       -Widentities
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
-  if impl(ghc >= 8.0)
-    ghc-options:       -Wredundant-constraints
-  if impl(ghc >= 8.2)
-    ghc-options:       -fhide-source-paths
-  if impl(ghc >= 8.4)
-    ghc-options:       -Wmissing-export-lists
-                       -Wpartial-fields
-  if impl(ghc >= 8.8)
-    ghc-options:       -Wmissing-deriving-strategies
+  build-depends:        base, containers, array
 
-  default-language:    Haskell2010
+  ghc-options:          -Wall
+                        -Wcompat
+                        -Widentities
+                        -Wincomplete-uni-patterns
+                        -Wincomplete-record-updates
+  if impl(ghc >= 8.0) 
+    ghc-options:        -Wredundant-constraints
+  if impl(ghc >= 8.2) 
+    ghc-options:        -fhide-source-paths
+  if impl(ghc >= 8.4) 
+    ghc-options:        -Wmissing-export-lists
+                        -Wpartial-fields
+  if impl(ghc >= 8.8) 
+    ghc-options:        -Wmissing-deriving-strategies
 
-library
-  import:              common-options
-  hs-source-dirs:      src
-  exposed-modules:     QR
-  other-modules:       QR.Encoding
-                       QR.Analysis,
-                       QR.ErrorCorrection,
-                       QR.Types,
-                       QR.Constants,
-                       QR.Interleaving,
-                       QR.ModulePlacement,
-                       QR.Masking,
-                       Utils
+  default-language:     Haskell2010
 
-executable qr
-  import:              common-options
-  hs-source-dirs:      app
-  main-is:             Main.hs
-  build-depends:       qr
-  ghc-options:         -threaded
-                       -rtsopts
-                       -with-rtsopts=-N
+library 
+  import:               common-options
+  hs-source-dirs:       src
+  exposed-modules:      QR
+  other-modules:        QR.Encoding
+                        QR.Analysis,
+                        QR.ErrorCorrection,
+                        QR.Types,
+                        QR.Constants,
+                        QR.Interleaving,
+                        QR.ModulePlacement,
+                        QR.Masking,
+                        Utils
 
-test-suite qr-test
-  import:              common-options
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       qr
-  ghc-options:         -threaded
-                       -rtsopts
-                       -with-rtsopts=-N
+executable qr 
+  import:               common-options
+  hs-source-dirs:       app
+  main-is:              Main.hs
+  build-depends:        qr
+  ghc-options:          -threaded
+                        -rtsopts
+                        -with-rtsopts=-N
+
+test-suite qr-test  
+  import:               common-options
+  type:                 exitcode-stdio-1.0
+  hs-source-dirs:       test
+  main-is:              Spec.hs
+  build-depends:        qr,
+                        HUnit
+  ghc-options:          -threaded
+                        -rtsopts
+                        -with-rtsopts=-N
