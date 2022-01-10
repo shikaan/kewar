@@ -18,6 +18,7 @@ import QR.Encoding (encode, groups, version)
 import QR.ErrorCorrection (errorCodeWords)
 import QR.Interleaving (interleave)
 import QR.ModulePlacement (Grid, draw, showG)
+import QR.Masking (main)
 import QR.Types (BitString, CorrectionLevel (..), Input)
 
 --- Return QR Code
@@ -31,5 +32,5 @@ generate i cl = do
   let Right ecw = errorCodeWords gs cl v
   let bs = interleave v gs ecw
 
-  let (g, _) = draw v bs
-  g
+  let (g, ps) = draw v bs
+  main ps g

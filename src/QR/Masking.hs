@@ -1,11 +1,12 @@
-module QR.Masking (mask, penalty1, penalty2, penalty3, penalty4) where
-
+module QR.Masking (mask, penalty1, penalty2, penalty3, penalty4, main) where
 
 import Data.Array (bounds, elems, inRange, indices, (!))
-import Data.List (foldl', groupBy)
-import QR.ModulePlacement (Grid, Module (Black, White), Position, cols, rows, size')
+import Data.Either (fromRight)
+import Data.List (elemIndex, foldl', foldl1', groupBy)
+import Data.Maybe (fromJust)
+import QR.ModulePlacement (Grid, Module (Black, White), Position, cols, insert, rows, size')
 import QR.Types (Exception (InvalidMask))
-import Utils (count, consecutiveChunksOf)
+import Utils (consecutiveChunksOf, count)
 
 flip :: Module -> Module
 flip Black = White
@@ -23,7 +24,7 @@ mask typ ((r, c), m)
   | typ == 7 = flipIf $ even ((r + c `mod` 2) + (r * c `mod` 3))
   | otherwise = Left InvalidMask
   where
-    flipIf:: Bool -> Either undefined (Position, Module)
+    flipIf :: Bool -> Either undefined (Position, Module)
     flipIf rule = Right $ if rule then ((r, c), QR.Masking.flip m) else ((r, c), m)
 
 sameModuleConsecutive :: [(Position, Module)] -> [[(Position, Module)]]
@@ -82,3 +83,16 @@ penalty4 g = m * 10
     ratio = (100 * blacks) `div` total
     q = ratio `mod` 5
     m = minimum $ map (\x -> abs (x - 50) `div` 5) [ratio - q, ratio - q + 5]
+
+penalty :: Grid -> Int
+penalty g = sum [penalty1 g, penalty2 g, penalty3 g, penalty4 g]
+
+maskGrid :: Grid -> [Position] -> Int -> Grid
+maskGrid g ps n = insert g (map (\p -> fromRight (p, g ! p) $ mask n (p, g ! p)) ps)
+
+main forbiddenLocations grid = masked !! minMask
+  where
+    locations = filter (`notElem` forbiddenLocations) (indices grid)
+    masked = map (maskGrid grid locations) [0 .. 7]
+    penalties = map penalty masked
+    minMask = fromJust $ elemIndex (foldl1' min penalties) penalties
