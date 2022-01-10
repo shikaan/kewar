@@ -1,9 +1,11 @@
-module QR.Masking where
+module QR.Masking (mask, penalty1, penalty2, penalty3, penalty4) where
 
-import Data.Array (bounds, inRange, indices, (!))
+
+import Data.Array (bounds, elems, inRange, indices, (!))
 import Data.List (foldl', groupBy)
-import QR.ModulePlacement (Grid, Module (Black, White), Position, cols, rows)
+import QR.ModulePlacement (Grid, Module (Black, White), Position, cols, rows, size')
 import QR.Types (Exception (InvalidMask))
+import Utils (count, consecutiveChunksOf)
 
 flip :: Module -> Module
 flip Black = White
@@ -11,17 +13,18 @@ flip White = Black
 
 mask :: Int -> (Position, Module) -> Either Exception (Position, Module)
 mask typ ((r, c), m)
-  | typ == 0 = apply $ even (r + c)
-  | typ == 1 = apply $ even r
-  | typ == 2 = apply $ c `mod` 3 == 0
-  | typ == 3 = apply $ (r + c) `mod` 3 == 0
-  | typ == 4 = apply $ even (floor (fromIntegral r / 2) + floor (fromIntegral c / 3))
-  | typ == 5 = apply $ ((r * c `mod` 2) + (r * c `mod` 3)) == 0
-  | typ == 6 = apply $ even ((r * c `mod` 2) + (r * c `mod` 3))
-  | typ == 7 = apply $ even ((r + c `mod` 2) + (r * c `mod` 3))
+  | typ == 0 = flipIf $ even (r + c)
+  | typ == 1 = flipIf $ even r
+  | typ == 2 = flipIf $ c `mod` 3 == 0
+  | typ == 3 = flipIf $ (r + c) `mod` 3 == 0
+  | typ == 4 = flipIf $ even $ floor (fromIntegral r / 2) + floor (fromIntegral c / 3)
+  | typ == 5 = flipIf $ ((r * c `mod` 2) + (r * c `mod` 3)) == 0
+  | typ == 6 = flipIf $ even ((r * c `mod` 2) + (r * c `mod` 3))
+  | typ == 7 = flipIf $ even ((r + c `mod` 2) + (r * c `mod` 3))
   | otherwise = Left InvalidMask
   where
-    apply rule = Right $ if rule then ((r, c), QR.Masking.flip m) else ((r, c), m)
+    flipIf:: Bool -> Either undefined (Position, Module)
+    flipIf rule = Right $ if rule then ((r, c), QR.Masking.flip m) else ((r, c), m)
 
 sameModuleConsecutive :: [(Position, Module)] -> [[(Position, Module)]]
 sameModuleConsecutive = groupBy (\(_, v) (_, v') -> v == v')
@@ -37,6 +40,7 @@ penalty1 g = (penalty . rows) g + (penalty . cols) g
 penalty2 :: Grid -> Int
 penalty2 g = foldl' (\acc b -> acc + cost b) 0 boxes
   where
+    bnds :: (Position, Position)
     bnds = bounds g
 
     neighbors :: Position -> [Position]
@@ -54,3 +58,27 @@ penalty2 g = foldl' (\acc b -> acc + cost b) 0 boxes
     cost group
       | length (sameModuleConsecutive group) == 1 = 3
       | otherwise = 0
+
+penalty3 :: Grid -> Int
+penalty3 g = (penalty . map modules . rows) g + (penalty . map modules . cols) g
+  where
+    -- Patterns to be matched
+    pattern1 = [Black, White, Black, Black, Black, White, Black, White, White, White, White]
+    pattern2 = [White, White, White, White, Black, White, Black, Black, Black, White, Black]
+
+    matches :: [Module] -> Int
+    matches l = length $ filter (\i -> i == pattern1 || i == pattern2) $ consecutiveChunksOf 11 l
+
+    modules :: [(a, b)] -> [b]
+    modules l = map snd l
+
+    penalty gs = 40 * foldl' (\s g' -> s + matches g') 0 gs
+
+penalty4 :: Grid -> Int
+penalty4 g = m * 10
+  where
+    total = size' g
+    blacks = count (== Black) (elems g)
+    ratio = (100 * blacks) `div` total
+    q = ratio `mod` 5
+    m = minimum $ map (\x -> abs (x - 50) `div` 5) [ratio - q, ratio - q + 5]

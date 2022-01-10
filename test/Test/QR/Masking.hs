@@ -1,11 +1,19 @@
 module Test.QR.Masking (maskingSuite) where
 
-import QR.Masking (penalty1, penalty2)
-import QR.ModulePlacement (Module (Black, White), Grid, insert, mkGrid, singleton)
+import QR.Masking (penalty1, penalty2, penalty3, penalty4)
+import QR.ModulePlacement (Grid, Module (Black, White), insert, mkGrid, singleton, translateTo, Position)
 import Test.HUnit (Test (..), assertEqual)
 
 grid :: Int -> Int -> Grid
 grid r c = mkGrid ((0, 0), (c - 1, r - 1))
+
+-- TODO: copy-pasted
+finder :: [(Position , Module)]
+finder = do
+  let whitePositions = [(1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (1, 2), (1, 3), (1, 4), (1, 5), (2, 5), (3, 5), (4, 5), (5, 5), (5, 2), (5, 3), (5, 4)]
+  let whites = zip whitePositions (repeat White)
+  let blacks = zip [(i, j) | i <- [0 .. 6], j <- [0 .. 6], (i, j) `notElem` whitePositions] (repeat Black)
+  blacks ++ whites
 
 penalty1Test :: [Test]
 penalty1Test = do
@@ -57,9 +65,40 @@ penalty2Test = do
         ]
     ]
 
+penalty3Test :: [Test]
+penalty3Test = do
+  let empty = grid 20 20 -- v1
+  let fs = map (insert empty) [finder, translateTo (13, 0) finder, translateTo (0, 13) finder]
+
+  [ TestLabel "when checking a singleton" $
+      TestList
+        [ TestCase (assertEqual "return 0" 0 (penalty3 singleton))
+        ],
+    TestLabel "when checking a finders pattern" $
+      TestList
+        [ TestCase (assertEqual "handles white on right" 240 (penalty3 $ fs !! 0)),
+          TestCase (assertEqual "handles white on left" 240 (penalty3 $ fs !! 1)),
+          TestCase (assertEqual "handles white on top" 240 (penalty3 $ fs !! 2))
+        ]
+    ]
+
+penalty4Test :: [Test]
+penalty4Test = do
+  let homogeneous = insert (grid 2 2) [((i, j), if odd (i + j) then Black else White) | i <- [0 .. 1], j <- [0 .. 1]]
+  let mainlyBlack = insert (grid 2 2) [((i, j), if (i + j) `mod` 3 /= 0 then Black else White) | i <- [0 .. 1], j <- [0 .. 1]]
+
+  [ TestLabel "when checking a grid" $
+      TestList
+        [ TestCase (assertEqual "returns no penalty if homogeneous" 0 (penalty4 homogeneous)),
+          TestCase (assertEqual "returns penalty" 50 (penalty4 mainlyBlack))
+        ]
+    ]
+
 maskingSuite :: Test
 maskingSuite =
   TestList
     [ TestLabel "penalty1" $ TestList penalty1Test,
-      TestLabel "penalty2" $ TestList penalty2Test
+      TestLabel "penalty2" $ TestList penalty2Test,
+      TestLabel "penalty3" $ TestList penalty3Test,
+      TestLabel "penalty4" $ TestList penalty4Test
     ]

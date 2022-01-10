@@ -74,6 +74,9 @@ sizeG v = ((0, 0), (s, s)) where s = size v - 1
 size :: Version -> Int
 size v = ((v -1) * 4) + 21
 
+size' :: Grid -> Int
+size' g = (r + 1) * (c + 1) where (r, c) = snd $ bounds g
+
 translateTo :: Position -> [(Position, Module)] -> [(Position, Module)]
 translateTo p = map (first (sumP p))
 

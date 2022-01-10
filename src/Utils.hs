@@ -1,4 +1,4 @@
-module Utils (readInt, toBin, toDec, leftPad, chunksOf) where
+module Utils (readInt, toBin, toDec, leftPad, chunksOf, count, consecutiveChunksOf) where
 
 import Data.Char (digitToInt, intToDigit)
 import Data.List (foldl')
@@ -16,6 +16,12 @@ toDec = foldl' (\acc v -> 2 * acc + digitToInt v) 0
 
 leftPad :: Int -> Char -> String -> String
 leftPad size char str = replicate (size - length str) char ++ str
+
+count :: (a -> Bool) -> [a] -> Int
+count predicate = length . filter predicate
+
+consecutiveChunksOf :: Int -> [a] -> [[a]]
+consecutiveChunksOf n l = [(take n . drop i) l | i <- [0 .. (length l - n)]]
 
 chunksOf :: Int -> [a] -> [[a]]
 chunksOf n l = step n l []
