@@ -18,7 +18,8 @@ import QR.Encoding (encode, groups, version)
 import QR.ErrorCorrection (errorCodeWords)
 import QR.Interleaving (interleave)
 import QR.ModulePlacement (Grid, draw, showG)
-import QR.Masking (main)
+import QR.Masking (optimalMask, maskGrid)
+import QR.FormatVersion (mainFV)
 import QR.Types (BitString, CorrectionLevel (..), Input)
 
 --- Return QR Code
@@ -33,4 +34,5 @@ generate i cl = do
   let bs = interleave v gs ecw
 
   let (g, ps) = draw v bs
-  main ps g
+  let (masked, mv) = optimalMask ps g
+  mainFV masked v cl mv

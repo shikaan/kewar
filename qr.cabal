@@ -45,6 +45,7 @@ library
                         QR.Interleaving,
                         QR.ModulePlacement,
                         QR.Masking,
+                        QR.FormatVersion,
                         Utils
 
 executable qr 

@@ -1,4 +1,4 @@
-module Utils (readInt, toBin, toDec, leftPad, chunksOf, count, consecutiveChunksOf) where
+module Utils (readInt, toBin, toDec, leftPad, chunksOf, count, consecutiveChunksOf, leftUnpad, rightPad) where
 
 import Data.Char (digitToInt, intToDigit)
 import Data.List (foldl')
@@ -16,6 +16,12 @@ toDec = foldl' (\acc v -> 2 * acc + digitToInt v) 0
 
 leftPad :: Int -> Char -> String -> String
 leftPad size char str = replicate (size - length str) char ++ str
+
+rightPad :: Int -> Char -> String -> String
+rightPad size char str = str ++ replicate (size - length str) char
+
+leftUnpad :: Char -> String -> String
+leftUnpad char = dropWhile (==char)
 
 count :: (a -> Bool) -> [a] -> Int
 count predicate = length . filter predicate

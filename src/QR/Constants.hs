@@ -11,11 +11,12 @@ module QR.Constants
     alignmentPatternLocations,
     alphaNumericValue,
     allowedAlphaNumericValues,
+    format, version
   )
 where
 
 import Data.IntMap (IntMap, fromList, (!))
-import Data.List (find, foldl')
+import Data.List (find, foldl', isPrefixOf)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Tuple (swap)
@@ -80,6 +81,28 @@ alphaNumericValue = (Map.!) rawAlphaNumericValues
 
 allowedAlphaNumericValues :: [Char]
 allowedAlphaNumericValues = Map.keys rawAlphaNumericValues
+
+format :: CorrectionLevel -> Int -> BitString
+format errorCorrection maskPattern = words record !! 2
+  where
+    record = fromMaybe "0" $ find (\i -> (show errorCorrection ++ " " ++ show maskPattern) `isPrefixOf` i) rawFormatString
+
+version :: Version -> Maybe BitString
+version v
+  | v < 7 = Nothing
+  | otherwise = do
+      case find (show v `isPrefixOf`) rawVersionString of
+        Just record -> Just $ words record !! 1
+        Nothing -> Nothing
+
+-- | DUMP
+
+-- | Return the index of mode column in following tables
+modeIndex :: Mode -> Int
+modeIndex Numeric = 0
+modeIndex AlphaNumeric = 1
+modeIndex Byte = 2
+modeIndex Kanji = 3
 
 -- Version-Correction, Numeric, AlphaNumeric, Byte, Kanji
 rawCapacities :: [[String]]
@@ -827,9 +850,76 @@ toExponent a = exponents ! a
 fromExponent :: Int -> Int
 fromExponent a = numbers ! a
 
--- Return the index of mode column in following tables
-modeIndex :: Mode -> Int
-modeIndex Numeric = 0
-modeIndex AlphaNumeric = 1
-modeIndex Byte = 2
-modeIndex Kanji = 3
+rawFormatString = lines s
+  where
+    s =
+      "L 0 111011111000100\n\
+      \L 1 111001011110011\n\
+      \L 2 111110110101010\n\
+      \L 3 111100010011101\n\
+      \L 4 110011000101111\n\
+      \L 5 110001100011000\n\
+      \L 6 110110001000001\n\
+      \L 7 110100101110110\n\
+      \M 0 101010000010010\n\
+      \M 1 101000100100101\n\
+      \M 2 101111001111100\n\
+      \M 3 101101101001011\n\
+      \M 4 100010111111001\n\
+      \M 5 100000011001110\n\
+      \M 6 100111110010111\n\
+      \M 7 100101010100000\n\
+      \Q 0 011010101011111\n\
+      \Q 1 011000001101000\n\
+      \Q 2 011111100110001\n\
+      \Q 3 011101000000110\n\
+      \Q 4 010010010110100\n\
+      \Q 5 010000110000011\n\
+      \Q 6 010111011011010\n\
+      \Q 7 010101111101101\n\
+      \H 0 001011010001001\n\
+      \H 1 001001110111110\n\
+      \H 2 001110011100111\n\
+      \H 3 001100111010000\n\
+      \H 4 000011101100010\n\
+      \H 5 000001001010101\n\
+      \H 6 000110100001100\n\
+      \H 7 000100000111011"
+
+rawVersionString = lines s
+  where
+    s =
+      "7 000111110010010100\n\
+      \8 001000010110111100\n\
+      \9 001001101010011001\n\
+      \10 001010010011010011\n\
+      \11 001011101111110110\n\
+      \12 001100011101100010\n\
+      \13 001101100001000111\n\
+      \14 001110011000001101\n\
+      \15 001111100100101000\n\
+      \16 010000101101111000\n\
+      \17 010001010001011101\n\
+      \18 010010101000010111\n\
+      \19 010011010100110010\n\
+      \20 010100100110100110\n\
+      \21 010101011010000011\n\
+      \22 010110100011001001\n\
+      \23 010111011111101100\n\
+      \24 011000111011000100\n\
+      \25 011001000111100001\n\
+      \26 011010111110101011\n\
+      \27 011011000010001110\n\
+      \28 011100110000011010\n\
+      \29 011101001100111111\n\
+      \30 011110110101110101\n\
+      \31 011111001001010000\n\
+      \32 100000100111010101\n\
+      \33 100001011011110000\n\
+      \34 100010100010111010\n\
+      \35 100011011110011111\n\
+      \36 100100101100001011\n\
+      \37 100101010000101110\n\
+      \38 100110101001100100\n\
+      \39 100111010101000001\n\
+      \40 101000110001101001"

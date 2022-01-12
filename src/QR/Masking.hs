@@ -1,4 +1,4 @@
-module QR.Masking (mask, penalty1, penalty2, penalty3, penalty4, main) where
+module QR.Masking (mask, penalty1, penalty2, penalty3, penalty4, optimalMask, maskGrid) where
 
 import Data.Array (bounds, elems, inRange, indices, (!))
 import Data.Either (fromRight)
@@ -90,7 +90,7 @@ penalty g = sum [penalty1 g, penalty2 g, penalty3 g, penalty4 g]
 maskGrid :: Grid -> [Position] -> Int -> Grid
 maskGrid g ps n = insert g (map (\p -> fromRight (p, g ! p) $ mask n (p, g ! p)) ps)
 
-main forbiddenLocations grid = masked !! minMask
+optimalMask forbiddenLocations grid = (masked !! minMask, minMask)
   where
     locations = filter (`notElem` forbiddenLocations) (indices grid)
     masked = map (maskGrid grid locations) [0 .. 7]

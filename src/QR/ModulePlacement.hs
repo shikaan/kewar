@@ -1,9 +1,9 @@
 module QR.ModulePlacement where
 
-import Data.Array (Array, assocs, bounds, elems, inRange, listArray, (//), ixmap)
-import Data.Tuple (swap)
+import Data.Array (Array, assocs, bounds, elems, inRange, ixmap, listArray, (//))
 import Data.Bifunctor (bimap, first)
-import Data.List (intercalate, groupBy)
+import Data.List (groupBy, intercalate)
+import Data.Tuple (swap)
 import QR.Constants (alignmentPatternLocations)
 import QR.Types (BitString, Version)
 import Utils (chunksOf)
@@ -23,6 +23,11 @@ draw v bs = do
   (g // (fs ++ as ++ ts ++ dm ++ ss ++ dataBits v bs forbiddenLocations), forbiddenLocations)
 
 data Module = Black | White deriving (Eq)
+
+fromChar :: Char -> Maybe Module
+fromChar '0' = Just White
+fromChar '1' = Just Black
+fromChar _ = Nothing
 
 ----
 
@@ -153,11 +158,11 @@ versionArea v
 ---
 -- starting from teh bottom right point
 column :: (Enum a, Num a, Num b) => (b, a) -> [(a, b)]
-column (a, b) = [(j, i) | j <- [b -1, b -2 .. 0], i <- [a -1, a -2]]
+column (a, b) = [(j, i) | j <- [b -1, b -2 .. 0], i <- [a, a -1]]
 
 dataBits :: Version -> BitString -> [Position] -> [(Position, Module)]
 dataBits version bitString forbiddenLocations = do
-  let inColumns = concatMap column (zip [s, s -2 .. 0] (repeat s))
+  let inColumns = concatMap column (zip [s -1, s -3 .. 0] (repeat s))
   let allowedLocations = filter (`notElem` forbiddenLocations) inColumns
   zipWith (\l b -> (l, if b == '0' then White else Black)) allowedLocations bitString
   where

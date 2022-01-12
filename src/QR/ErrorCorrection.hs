@@ -1,4 +1,4 @@
-module QR.ErrorCorrection (errorCodeWords) where
+module QR.ErrorCorrection (errorCodeWords, mkPolynomial, divP, Polynomial, toBitString, fromBitString, sumP) where
 
 import Data.Bits (xor)
 import Data.Either (fromRight)
@@ -9,16 +9,24 @@ import qualified Data.Sequence as S
 import QR.Constants (errorCorrectionCodeWordsPerBlock, fromExponent, groupsCodeWords, modeIndicator, toExponent)
 import QR.Types (BitString, Codeword, CorrectionLevel, Exception, Group, Mode, Version)
 import Utils (chunksOf, leftPad, toBin, toDec)
+import Data.Char (digitToInt)
 
+-- | Returns a grouped list of Error CodeWords from a grouped Input
 errorCodeWords :: [Group] -> CorrectionLevel -> Version -> Either Exception [Group]
 errorCodeWords groups cl version = do
   let eccw = fromRight 0 (errorCorrectionCodeWordsPerBlock version cl)
-  let errorCodeWordsPerBlock b = map (leftPad 8 '0' . toBin) (toList (divP (message b) (generator $ eccw -1)))
+  let errorCodeWordsPerBlock b = map (leftPad 8 '0' . toBin) (toList (divP (mkMessage b) (mkGenerator $ eccw -1)))
 
   Right (map (map errorCodeWordsPerBlock) groups)
 
 -- Galois Field Polynomial whose entries are 0<=n<=255
 type Polynomial = S.Seq Int
+
+toBitString :: Polynomial -> String
+toBitString = show . toList
+
+fromBitString :: BitString -> Polynomial
+fromBitString = mkPolynomial . map digitToInt
 
 degree :: Polynomial -> Int
 degree p = S.length p - 1
@@ -72,9 +80,9 @@ divP dividend divisor = do
       let dividend' = sumP dividend divisor'
       S.drop 1 dividend'
 
-generator :: Int -> Polynomial
-generator 1 = mkPolynomial [1, 1]
-generator n = prodP (generator (n -1)) (mkPolynomial [1, fromExponent (n -1)])
+mkGenerator :: Int -> Polynomial
+mkGenerator 1 = mkPolynomial [1, 1]
+mkGenerator n = prodP (mkGenerator (n -1)) (mkPolynomial [1, fromExponent (n -1)])
 
-message :: [BitString] -> Polynomial
-message bs = mkPolynomial (map toDec bs)
+mkMessage :: [BitString] -> Polynomial
+mkMessage bs = mkPolynomial (map toDec bs)
