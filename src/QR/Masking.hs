@@ -13,7 +13,7 @@ flip Black = White
 flip White = Black
 
 mask :: Int -> (Position, Module) -> Either Exception (Position, Module)
-mask typ ((r, c), m)
+mask typ ((c, r), m)
   | typ == 0 = flipIf $ even (r + c)
   | typ == 1 = flipIf $ even r
   | typ == 2 = flipIf $ c `mod` 3 == 0
@@ -25,7 +25,7 @@ mask typ ((r, c), m)
   | otherwise = Left InvalidMask
   where
     flipIf :: Bool -> Either undefined (Position, Module)
-    flipIf rule = Right $ if rule then ((r, c), QR.Masking.flip m) else ((r, c), m)
+    flipIf rule = Right $ if rule then ((c, r), QR.Masking.flip m) else ((c, r), m)
 
 sameModuleConsecutive :: [(Position, Module)] -> [[(Position, Module)]]
 sameModuleConsecutive = groupBy (\(_, v) (_, v') -> v == v')

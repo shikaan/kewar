@@ -15,7 +15,7 @@ import Data.Char (digitToInt)
 errorCodeWords :: [Group] -> CorrectionLevel -> Version -> Either Exception [Group]
 errorCodeWords groups cl version = do
   let eccw = fromRight 0 (errorCorrectionCodeWordsPerBlock version cl)
-  let errorCodeWordsPerBlock b = map (leftPad 8 '0' . toBin) (toList (divP (mkMessage b) (mkGenerator $ eccw -1)))
+  let errorCodeWordsPerBlock b = map (leftPad 8 '0' . toBin) (toList (divP (mkMessage b) (mkGenerator eccw)))
 
   Right (map (map errorCodeWordsPerBlock) groups)
 
@@ -68,7 +68,7 @@ divP :: Polynomial -> Polynomial -> Polynomial
 divP dividend divisor = do
   let (dividend', divisor') = normalize dividend divisor
   let r = foldl' (step divisor') dividend' [1 .. (S.length dividend)]
-  S.take (S.length r - degree dividend) r
+  S.take (S.length r - degree dividend - 1) r
   where
     -- ensure dividend and divisor have same size
     normalize d d' = do

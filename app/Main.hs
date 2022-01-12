@@ -3,7 +3,7 @@ module Main (main) where
 import QR (generate, CorrectionLevel(Q), showG)
 
 exampleInput:: String
-exampleInput = "HELLO WORLD"
+exampleInput = "CIAO PICCOLA"
 
 main :: IO ()
 main = do

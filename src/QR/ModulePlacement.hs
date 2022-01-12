@@ -3,6 +3,7 @@ module QR.ModulePlacement where
 import Data.Array (Array, assocs, bounds, elems, inRange, ixmap, listArray, (//))
 import Data.Bifunctor (bimap, first)
 import Data.List (groupBy, intercalate)
+import qualified Data.List as DL
 import Data.Tuple (swap)
 import QR.Constants (alignmentPatternLocations)
 import QR.Types (BitString, Version)
@@ -44,7 +45,7 @@ type Grid = Array Position Module
 showG :: Grid -> String
 showG g = do
   let c = chunksOf (snd (snd (bounds g)) + 1) (map show (elems g))
-  intercalate "\n" (map (intercalate "") c)
+  intercalate "\n" (map (intercalate "") (DL.transpose c))
 
 singleton :: Array Position Module
 singleton = listArray ((0, 0), (0, 0)) [White]
@@ -162,8 +163,13 @@ column (a, b) = [(j, i) | j <- [b -1, b -2 .. 0], i <- [a, a -1]]
 
 dataBits :: Version -> BitString -> [Position] -> [(Position, Module)]
 dataBits version bitString forbiddenLocations = do
-  let inColumns = concatMap column (zip [s -1, s -3 .. 0] (repeat s))
-  let allowedLocations = filter (`notElem` forbiddenLocations) inColumns
   zipWith (\l b -> (l, if b == '0' then White else Black)) allowedLocations bitString
   where
-    s = size version
+    n = (size version) - 1
+    line (x, r) =
+      [ c | y <- if r then [n, n-1 .. 0] else [0 .. n]
+          , c <- [(x, y), (x-1, y)] ]
+    cols = zip ([n, n-2 .. 8] ++ [5, 3, 1])
+               (cycle [True, False])
+    cs = cols >>= line
+    allowedLocations = filter (`notElem` forbiddenLocations) cs

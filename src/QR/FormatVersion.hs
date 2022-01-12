@@ -7,7 +7,6 @@ import QR.ErrorCorrection (fromBitString, sumP, toBitString)
 import QR.ModulePlacement (fromChar, insert, size)
 import QR.Types (BitString, CorrectionLevel (H, L, M, Q))
 import Utils (leftPad, leftUnpad, rightPad, toBin)
-import Debug.Trace (trace)
 
 formatLocations v = do
   [ [(0, 8), (1, 8), (2, 8), (3, 8), (4, 8), (5, 8), (7, 8), (8, 8), (8, 7), (8, 5), (8, 4), (8, 3), (8, 2), (8, 1), (8, 0)],
@@ -22,7 +21,6 @@ versionLocations v = do
   where
     s = size v
 
-mainFV g v cl mp | trace (show v ++ " " ++ show mp ++ " " ++ show cl) False = undefined
 mainFV g v cl mp = do
   let vS = version v
   let vl = versionLocations v
