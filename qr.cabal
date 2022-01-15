@@ -9,12 +9,14 @@ author:              Manuel Spagnolo
 maintainer:          Manuel Spagnolo <spagnolo.manu@gmail.com>
 copyright:           2022 Manuel Spagnolo
 build-type:          Simple
+data-dir:            data
+data-files:          *.csv
 extra-doc-files:     README.md
                      CHANGELOG.md
 tested-with:         GHC == 8.8.3
 
 common common-options
-  build-depends:        base, containers, array
+  build-depends:        base, containers, array, split
 
   ghc-options:          -Wall
                         -Wcompat
@@ -46,7 +48,8 @@ library
                         QR.ModulePlacement,
                         QR.Masking,
                         QR.FormatVersion,
-                        Utils
+                        Utils,
+                        Paths_qr
 
 executable qr 
   import:               common-options
