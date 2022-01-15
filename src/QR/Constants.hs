@@ -20,7 +20,7 @@ import Data.IntMap (IntMap, fromList, (!))
 import Data.List (find, foldl', isPrefixOf)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromJust)
 import Data.Tuple (swap)
 import Paths_qr (getDataFileName)
 import QR.Types (BitString, CorrectionLevel, Exception (InvalidVersionOrMode), Mode (AlphaNumeric, Byte, Kanji, Numeric), Version)

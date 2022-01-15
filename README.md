@@ -6,3 +6,11 @@
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 See README for more info
+
+## TODOs
+
+- []: create a CLI
+- []: analyze input to decide mode
+- []: add numeric encoding
+- []: split components meaningfully
+- []: write some tests
