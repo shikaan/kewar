@@ -8,11 +8,10 @@ where
 
 import Data.Char (isLatin1, ord)
 import Data.Either (fromRight)
-import Data.Foldable (find, foldl')
-import Data.List (transpose)
+import Data.Foldable (foldl')
 import QR.Constants (allowedAlphaNumericValues, alphaNumericValue, capacities, characterCountIndicatorSize, groupsCodeWords, modeIndicator, totalBits)
 import QR.Types (BitString, CorrectionLevel, Exception (InvalidCharacterSet, NotImplemented), Group, Input, Mode (AlphaNumeric, Byte, Kanji, Numeric), Version)
-import Utils (chunksOf, leftPad, readInt, toBin)
+import Utils (chunksOf, leftPad, toBin)
 
 -- Returns minimum Version
 version :: Input -> Mode -> CorrectionLevel -> Int
@@ -54,7 +53,7 @@ toBitString Kanji i = Left NotImplemented
 -- TODO: handle errors
 encode :: Input -> Mode -> Version -> CorrectionLevel -> Either Exception BitString
 encode i m v cl = do
-  let Right encoded = toBitString m i
+  let encoded = fromRight "" $ toBitString m i
   let requiredBits = fromRight 0 (totalBits v cl)
   let t = terminator encoded requiredBits
   let mi = modeIndicator m

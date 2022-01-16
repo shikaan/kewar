@@ -9,7 +9,7 @@ See README for more info
 
 ## TODOs
 
-- []: create a CLI
+- []: move showing code in CLI
 - []: analyze input to decide mode
 - []: add numeric encoding
 - []: split components meaningfully
