@@ -1,24 +1,19 @@
-module Main where
+module Main (main) where
 
-import QR (CorrectionLevel (..), generate, showG)
-
-import Data.Either (fromRight)
-import Data.List (find, nub)
-import Data.Maybe (Maybe (Nothing), fromMaybe)
-import Data.Version (showVersion)
-import GHC.IO.Exception (IOErrorType (InvalidArgument))
-import qualified Paths_qr as PathsQR
-import System.Console.GetOpt (ArgDescr (NoArg, OptArg, ReqArg), ArgOrder (Permute), OptDescr (Option), getOpt, usageInfo)
-import System.Environment (getArgs)
-import System.Exit (die, exitFailure, exitSuccess)
-import System.IO.Error (mkIOError)
 import Control.Monad (when)
-import Data.Data (gcast1)
+import Data.List (find, nub)
+import Data.Version (showVersion)
+import qualified Paths_qr as PathsQR
+import QR (CorrectionLevel (..), generate)
+import QR.CLI.Grid (showG)
+import System.Console.GetOpt (ArgDescr (NoArg, OptArg), ArgOrder (Permute), OptDescr (Option), getOpt, usageInfo)
+import System.Environment (getArgs)
+import System.Exit (exitFailure, exitSuccess)
 
-data CLIException = InvalidErrorCorrectionLevel | InvalidInput deriving (Eq)
+data CLIException = InvalidErrorCorrectionLevel
 
 instance Show CLIException where
-  show InvalidErrorCorrectionLevel = "Provided error correction level is invalid. Supported options: L, M, Q, H"
+  show InvalidErrorCorrectionLevel = "Provided error correction level is invalid. Supported options: L, M, Q, H\n"
 
 data Options = Options
   { version :: Bool,
@@ -26,6 +21,7 @@ data Options = Options
     errorCorrection :: Either CLIException CorrectionLevel
   }
 
+defaults :: Options
 defaults =
   Options
     { version = False,
@@ -41,10 +37,13 @@ options =
   ]
 
 -- | Parsers
+parseHelp :: Options -> Options
 parseHelp o = o {help = True}
 
+parseVersion :: Options -> Options
 parseVersion o = o {version = True}
 
+parseErrorCorrection :: Maybe String -> Options -> Options
 parseErrorCorrection maybeErrorCorrection o = case maybeErrorCorrection of
   Nothing -> o {errorCorrection = Right Q}
   Just ec -> case find (\j -> ec == show j) [H, Q, L, M] of
@@ -57,11 +56,36 @@ parseCLIArguments argv =
     (o, i, []) -> return (foldl (flip id) defaults o, i)
     (_, _, e) -> handleError e
 
+-- | Handlers
+handleVersion :: IO ()
+handleVersion = do
+  putStrLn $ "qr-" ++ showVersion PathsQR.version
+  exitSuccess
+
+handleHelp :: IO ()
+handleHelp = do
+  printHelp
+  exitSuccess
+
+handleError :: [String] -> IO a
+handleError s = do
+  putStrLn $ unlines $ map (("qr: error: " ++) . init) (nub s)
+  printUsage
+  exitFailure
+
+-- | Utils
 header :: String
 header =
   unlines
     [ "qr - generate QR code from given input [version " ++ showVersion PathsQR.version ++ "]",
       "",
+      usage
+    ]
+
+usage :: String
+usage = 
+  unlines 
+    [
       "Usage: qr [options] [INPUT]",
       "",
       "qr is a tool to generate QR codes from any supported string,",
@@ -69,23 +93,14 @@ header =
       "",
       "For more information on QR codes: https://www.qrcode.com/en/",
       "",
-      "Usage:"
+      "Options:"
     ]
 
-handleVersion = do
-  putStrLn $ "qr-" ++ showVersion PathsQR.version
-  exitSuccess
-
-handleHelp = do
-  printHelp
-  exitSuccess
-
-handleError s = do
-  putStrLn $ unlines $ map (("qr: error: " ++) . init) (nub s)
-  printHelp
-  exitFailure
-
+printHelp :: IO ()
 printHelp = putStrLn $ usageInfo header options
+
+printUsage :: IO ()
+printUsage = putStrLn $ usageInfo usage options
 
 main :: IO ()
 main = do

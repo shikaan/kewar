@@ -53,8 +53,9 @@ library
 
 executable qr 
   import:               common-options
-  hs-source-dirs:       app
-  main-is:              Main.hs
+  hs-source-dirs:       bin
+  main-is:              QR/CLI.hs
+  other-modules:        QR.CLI.Grid
   build-depends:        qr
   ghc-options:          -threaded
                         -rtsopts

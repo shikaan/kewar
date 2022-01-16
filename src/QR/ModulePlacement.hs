@@ -1,13 +1,11 @@
 module QR.ModulePlacement where
 
-import Data.Array (Array, assocs, bounds, elems, inRange, ixmap, listArray, (//))
+import Data.Array (Array, assocs, bounds, inRange, ixmap, listArray, (//))
 import Data.Bifunctor (bimap, first)
-import Data.List (groupBy, intercalate)
-import qualified Data.List as DL
+import Data.List (groupBy)
 import Data.Tuple (swap)
 import QR.Constants (alignmentPatternLocations)
 import QR.Types (BitString, Version)
-import Utils (chunksOf)
 
 draw :: Version -> BitString -> (Grid, [Position])
 draw v bs = do
@@ -32,20 +30,11 @@ fromChar _ = Nothing
 
 ----
 
-instance Show Module where
-  show Black = "██"
-  show White = "  "
-
 type Position = (Int, Int)
 
 type Size = (Position, Position)
 
 type Grid = Array Position Module
-
-showG :: Grid -> String
-showG g = do
-  let c = chunksOf (snd (snd (bounds g)) + 1) (map show (elems g))
-  intercalate "\n" (map (intercalate "") (DL.transpose c))
 
 singleton :: Array Position Module
 singleton = listArray ((0, 0), (0, 0)) [White]

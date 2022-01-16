@@ -1,26 +1,27 @@
-{- |
-Copyright: (c) 2022 Manuel Spagnolo
-SPDX-License-Identifier: MIT
-Maintainer: Manuel Spagnolo <spagnolo.manu@gmail.com>
-
-See README for more info
--}
-
+-- |
+-- Copyright: (c) 2022 Manuel Spagnolo
+-- SPDX-License-Identifier: MIT
+-- Maintainer: Manuel Spagnolo <spagnolo.manu@gmail.com>
+--
+-- See README for more info
 module QR
   ( generate,
     CorrectionLevel (..),
-    showG,
+    Module (..),
+    Grid,
+    rows,
+    cols,
   )
 where
 
 import QR.Analysis (analyze)
 import QR.Encoding (encode, groups, version)
 import QR.ErrorCorrection (errorCodeWords)
-import QR.Interleaving (interleave)
-import QR.ModulePlacement (Grid, draw, showG)
-import QR.Masking (optimalMask)
 import QR.FormatVersion (mainFV)
-import QR.Types (CorrectionLevel (..), Input, Exception)
+import QR.Interleaving (interleave)
+import QR.Masking (optimalMask)
+import QR.ModulePlacement (Grid, Module (..), cols, draw, rows)
+import QR.Types (CorrectionLevel (..), Exception, Input)
 
 --- Return QR Code
 generate :: Input -> CorrectionLevel -> Either Exception Grid
