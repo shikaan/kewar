@@ -26,7 +26,7 @@ import QR.Types (CorrectionLevel (..), Exception, Input)
 --- Return QR Code
 generate :: Input -> CorrectionLevel -> Either Exception Grid
 generate i cl = do
-  let m = analyze i
+  let Right m = analyze i
   let v = version i m cl
   let Right encoded = encode i m v cl
 

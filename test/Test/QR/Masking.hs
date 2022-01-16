@@ -1,4 +1,4 @@
-module Test.QR.Masking (maskingSuite) where
+module Test.QR.Masking (suite) where
 
 import QR.Masking (penalty1, penalty2, penalty3, penalty4)
 import QR.ModulePlacement (Grid, Module (Black, White), insert, mkGrid, singleton, translateTo, Position)
@@ -94,8 +94,8 @@ penalty4Test = do
         ]
     ]
 
-maskingSuite :: Test
-maskingSuite =
+suite :: Test
+suite =
   TestList
     [ TestLabel "penalty1" $ TestList penalty1Test,
       TestLabel "penalty2" $ TestList penalty2Test,

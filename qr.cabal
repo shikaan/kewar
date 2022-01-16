@@ -68,7 +68,9 @@ test-suite qr-test
                         src
   main-is:              Spec.hs
   other-modules:        Test.QR.Masking,
-                        QR.Masking
+                        QR.Masking,
+                        Test.QR.Analysis,
+                        QR.Analysis
   build-depends:        qr,
                         HUnit
   ghc-options:          -threaded

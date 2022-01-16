@@ -9,7 +9,6 @@ See README for more info
 
 ## TODOs
 
-- []: analyze input to decide mode
 - []: add numeric encoding
 - []: split components meaningfully
 - []: write some tests

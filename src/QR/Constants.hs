@@ -23,7 +23,7 @@ import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Tuple (swap)
 import Paths_qr (getDataFileName)
-import QR.Types (BitString, CorrectionLevel, Exception (InvalidVersionOrMode), Mode (AlphaNumeric, Byte, Kanji, Numeric), Version)
+import QR.Types (BitString, CorrectionLevel, Exception (InvalidVersionOrMode), Mode (AlphaNumeric, Byte, Numeric), Version)
 import System.IO.Unsafe (unsafePerformIO)
 import Utils (readInt)
 
@@ -38,7 +38,6 @@ modeIndicator :: Mode -> BitString
 modeIndicator Numeric = "0001"
 modeIndicator AlphaNumeric = "0010"
 modeIndicator Byte = "0100"
-modeIndicator Kanji = "1000"
 
 -- Returns character capacity per Version
 capacities :: CorrectionLevel -> Mode -> [(Version, Int)]
@@ -111,9 +110,8 @@ modeIndex :: Mode -> Int
 modeIndex Numeric = 0
 modeIndex AlphaNumeric = 1
 modeIndex Byte = 2
-modeIndex Kanji = 3
 
--- Version-Correction, Numeric, AlphaNumeric, Byte, Kanji
+-- Version-Correction, Numeric, AlphaNumeric, Byte
 rawCapacities :: [[String]]
 rawCapacities = unsafeReadCSVFile "capacities.csv"
 
