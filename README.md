@@ -9,6 +9,5 @@ See README for more info
 
 ## TODOs
 
-- []: add numeric encoding
 - []: split components meaningfully
 - []: write some tests
