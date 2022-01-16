@@ -3,15 +3,16 @@ module QR.Encoding
     version,
     characterCountIndicator,
     groups,
+    toBitString,
   )
 where
 
-import Data.Char (isLatin1, ord)
+import Data.Char (ord)
 import Data.Either (fromRight)
 import Data.Foldable (foldl')
-import QR.Constants (allowedAlphaNumericValues, alphaNumericValue, capacities, characterCountIndicatorSize, groupsCodeWords, modeIndicator, totalBits)
-import QR.Types (BitString, CorrectionLevel, Exception (InvalidCharacterSet, NotImplemented), Group, Input, Mode (AlphaNumeric, Byte, Numeric), Version)
-import Utils (chunksOf, leftPad, toBin)
+import QR.Constants (alphaNumericValue, capacities, characterCountIndicatorSize, groupsCodeWords, modeIndicator, totalBits)
+import QR.Types (BitString, CorrectionLevel, Exception (..), Group, Input, Mode (..), Version)
+import Utils (chunksOf, leftPad, leftUnpad, readInt, toBin)
 
 -- Returns minimum Version
 version :: Input -> Mode -> CorrectionLevel -> Int
@@ -29,30 +30,35 @@ characterCountIndicator i m v =
     bSize = toBin (length i)
 
 -- Convert Input to BitString
-bytetoBitString :: Input -> Either Exception BitString
-bytetoBitString input
-  | not (all isLatin1 input) = Left InvalidCharacterSet
-  | otherwise = Right (concatMap (leftPad 8 '0' . (toBin . ord)) input)
+byteToBitString :: Input -> BitString
+byteToBitString = concatMap (leftPad 8 '0' . (toBin . ord))
 
-alphaNumericToBitString :: Input -> Either Exception BitString
-alphaNumericToBitString i
-  | not (all (`elem` allowedAlphaNumericValues) i) = Left InvalidCharacterSet
-  | otherwise = do
-    let sums = map (\i -> if length i == 2 then (head i * 45) + last i else head i) (chunksOf 2 $ map alphaNumericValue i)
-    let initial = concatMap (leftPad 11 '0' . toBin) (init sums)
-    let finalPad = if odd $ length i then 6 else 11
-    let final = leftPad finalPad '0' (toBin (last sums))
-    Right (initial ++ final)
+alphaNumericToBitString :: Input -> BitString
+alphaNumericToBitString i = do
+  let sums = map (\j -> if length j == 2 then (head j * 45) + last j else head j) (chunksOf 2 $ map alphaNumericValue i)
+  let initial = concatMap (leftPad 11 '0' . toBin) (init sums)
+  let finalPad = if odd $ length i then 6 else 11
+  let final = leftPad finalPad '0' (toBin (last sums))
+  initial ++ final
 
-toBitString :: Mode -> Input -> Either Exception BitString
-toBitString Numeric i = Left NotImplemented
+numericToBitString :: Input -> BitString
+numericToBitString i = concatMap (step . leftUnpad '0') (chunksOf 3 i)
+  where
+    transform = toBin . readInt
+    step chunk
+      | length chunk == 1 = leftPad 4   '0' $ transform chunk
+      | length chunk == 2 = leftPad 7   '0' $ transform chunk
+      | otherwise         = leftPad 10  '0' $ transform chunk
+
+toBitString :: Mode -> Input -> BitString
+toBitString Numeric i = numericToBitString i
 toBitString AlphaNumeric i = alphaNumericToBitString i
-toBitString Byte i = bytetoBitString i
+toBitString Byte i = byteToBitString i
 
 -- TODO: handle errors
 encode :: Input -> Mode -> Version -> CorrectionLevel -> Either Exception BitString
 encode i m v cl = do
-  let encoded = fromRight "" $ toBitString m i
+  let encoded = toBitString m i
   let requiredBits = fromRight 0 (totalBits v cl)
   let t = terminator encoded requiredBits
   let mi = modeIndicator m

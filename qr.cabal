@@ -70,7 +70,9 @@ test-suite qr-test
   other-modules:        Test.QR.Masking,
                         QR.Masking,
                         Test.QR.Analysis,
-                        QR.Analysis
+                        QR.Analysis,
+                        Test.QR.Encoding,
+                        QR.Encoding
   build-depends:        qr,
                         HUnit
   ghc-options:          -threaded
