@@ -9,7 +9,6 @@ See README for more info
 
 ## TODOs
 
-- []: move showing code in CLI
 - []: analyze input to decide mode
 - []: add numeric encoding
 - []: split components meaningfully
