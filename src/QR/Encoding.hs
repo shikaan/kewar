@@ -1,6 +1,6 @@
-module QR.Encoding (mode, version, encode, errorCodeWords, groups) where
+module QR.Encoding (mode, version, encodeData, encodeError, groups) where
 
 import QR.Encoding.Analysis (mode, version)
-import QR.Encoding.DataEncoding (encode)
-import QR.Encoding.ErrorEncoding (errorCodeWords)
+import QR.Encoding.Data (encodeData)
+import QR.Encoding.Error (encodeError)
 import QR.Encoding.Grouping (groups)

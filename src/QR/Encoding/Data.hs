@@ -1,4 +1,4 @@
-module QR.Encoding.DataEncoding where
+module QR.Encoding.Data where
 
 import Data.Char (ord)
 import QR.Constants (alphaNumericValue, characterCountIndicator, modeIndicator, totalBits)
@@ -32,8 +32,8 @@ toBitString AlphaNumeric i = alphaNumericToBitString i
 toBitString Byte i = byteToBitString i
 
 -- TODO: handle errors
-encode :: Input -> Mode -> Version -> CorrectionLevel -> Either Exception BitString
-encode i m v cl = do
+encodeData :: Input -> Mode -> Version -> CorrectionLevel -> Either Exception BitString
+encodeData i m v cl = do
   let encoded = toBitString m i
   let requiredBits = totalBits v cl
   let t = terminator encoded requiredBits

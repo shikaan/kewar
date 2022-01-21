@@ -1,8 +1,10 @@
-module QR.Encoding.Analysis where
+module QR.Encoding.Analysis (mode, version) where
 
 import Data.Char (isDigit, isLatin1)
 import QR.Constants (allowedAlphaNumericValues, capacities)
 import QR.Types (Exception (InvalidCharacterSet), Input, Mode (AlphaNumeric, Byte, Numeric), Version, CorrectionLevel)
+import Data.List (find)
+import Data.Maybe (fromJust)
 
 mode :: Input -> Either Exception Mode
 mode i
@@ -12,6 +14,8 @@ mode i
   | otherwise = Left InvalidCharacterSet
 
 version :: Input -> Mode -> CorrectionLevel -> Version
-version input mode correctionLevel = do
-  let cs = capacities correctionLevel mode
-  fst (head (filter (\(v, limit) -> limit > length input) cs))
+version i m cl = fst $ fromJust $ find (\(_, limit) -> limit > s) cs
+  where
+    cs = capacities cl m
+    s = length i
+  

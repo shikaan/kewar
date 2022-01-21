@@ -41,8 +41,8 @@ library
   exposed-modules:      QR
   other-modules:        QR.Encoding,
                           QR.Encoding.Analysis,
-                          QR.Encoding.DataEncoding,
-                          QR.Encoding.ErrorEncoding,
+                          QR.Encoding.Data,
+                          QR.Encoding.Error,
                           QR.Encoding.Grouping,
                         QR.Layout,
                           QR.Layout.FormatVersion,
