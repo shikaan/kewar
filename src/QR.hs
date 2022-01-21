@@ -14,24 +14,19 @@ module QR
   )
 where
 
-import QR.Analysis (analyze)
-import QR.Encoding (encode, groups, version)
-import QR.ErrorCorrection (errorCodeWords)
-import QR.FormatVersion (mainFV)
-import QR.Interleaving (interleave)
-import QR.Masking (optimalMask)
-import QR.ModulePlacement (Grid, Module (..), cols, draw, rows)
+import QR.Encoding (encode, errorCodeWords, groups, mode, version)
+import QR.Layout (Grid, Module (..), cols, draw, interleave, mainFV, optimalMask, rows)
 import QR.Types (CorrectionLevel (..), Exception, Input)
 
 --- Return QR Code
 generate :: Input -> CorrectionLevel -> Either Exception Grid
 generate i cl = do
-  let Right m = analyze i
+  let Right m = mode i
   let v = version i m cl
   let Right encoded = encode i m v cl
 
-  let Right gs = groups encoded v cl
-  let Right ecw = errorCodeWords gs cl v
+  let gs = groups encoded v cl
+  let ecw = errorCodeWords gs cl v
   let bs = interleave v gs ecw
 
   let (g, ps) = draw v bs

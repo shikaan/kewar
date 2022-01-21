@@ -1,16 +1,16 @@
-module QR.Masking (mask, penalty1, penalty2, penalty3, penalty4, optimalMask, maskGrid) where
+module QR.Layout.Masking (mask, penalty1, penalty2, penalty3, penalty4, optimalMask, maskGrid) where
 
 import Data.Array (bounds, elems, inRange, indices, (!))
 import Data.Either (fromRight)
 import Data.List (elemIndex, foldl', foldl1', groupBy)
 import Data.Maybe (fromJust)
-import QR.ModulePlacement (Grid, Module (Black, White), Position, cols, insert, rows, size')
+import QR.Layout.ModulePlacement (Grid, Module (Black, White), Position, cols, insert, rows, size')
 import QR.Types (Exception (InvalidMask))
 import Utils (consecutiveChunksOf, count)
 
-flip :: Module -> Module
-flip Black = White
-flip White = Black
+flipM :: Module -> Module
+flipM Black = White
+flipM White = Black
 
 mask :: Int -> (Position, Module) -> Either Exception (Position, Module)
 mask typ ((c, r), m)
@@ -25,7 +25,7 @@ mask typ ((c, r), m)
   | otherwise = Left InvalidMask
   where
     flipIf :: Bool -> Either undefined (Position, Module)
-    flipIf rule = Right $ if rule then ((c, r), QR.Masking.flip m) else ((c, r), m)
+    flipIf rule = Right $ if rule then ((c, r), flipM m) else ((c, r), m)
 
 sameModuleConsecutive :: [(Position, Module)] -> [[(Position, Module)]]
 sameModuleConsecutive = groupBy (\(_, v) (_, v') -> v == v')

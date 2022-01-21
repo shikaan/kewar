@@ -1,10 +1,10 @@
-module QR.FormatVersion where
+module QR.Layout.FormatVersion where
 
 import Data.Maybe (fromJust)
 import Data.Tuple (swap)
 import QR.Constants (format, version)
-import QR.ErrorCorrection (fromBitString, sumP, toBitString)
-import QR.ModulePlacement (fromChar, insert, size)
+import QR.Encoding.ErrorEncoding (fromBitString, sumP, toBitString)
+import QR.Layout.ModulePlacement (fromChar, insert, size)
 import QR.Types (BitString, CorrectionLevel (H, L, M, Q))
 import Utils (leftPad, leftUnpad, rightPad, toBin)
 

@@ -1,7 +1,7 @@
 module QR.Constants
   ( capacities,
     modeIndicator,
-    characterCountIndicatorSize,
+    characterCountIndicator,
     totalBits,
     toExponent,
     fromExponent,
@@ -23,58 +23,58 @@ import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Tuple (swap)
 import Paths_qr (getDataFileName)
-import QR.Types (BitString, CorrectionLevel, Exception (InvalidVersionOrMode), Mode (AlphaNumeric, Byte, Numeric), Version)
+import QR.Types (BitString, CorrectionLevel, Input, Mode (AlphaNumeric, Byte, Numeric), Version)
 import System.IO.Unsafe (unsafePerformIO)
-import Utils (readInt)
+import Utils (leftPad, readInt, toBin)
 
-{- Reads unsafely CSV data files from data-files. Not really proud. -}
+-- | Reads unsafely CSV data files from data-files. Not really proud.
 unsafeReadCSVFile :: FilePath -> [[String]]
-unsafeReadCSVFile fileName = do
-  let s = unsafePerformIO $ readFile $ unsafePerformIO $ getDataFileName fileName
-  map (splitOn ",") (lines s)
+unsafeReadCSVFile fileName = map (splitOn ",") (lines fileAsString)
+  where
+    fileAsString = unsafePerformIO $ readFile $ unsafePerformIO $ getDataFileName fileName
 
--- Returns bit string indicator for the Mode
+-- | Returns bit string indicator for the Mode
 modeIndicator :: Mode -> BitString
 modeIndicator Numeric = "0001"
 modeIndicator AlphaNumeric = "0010"
 modeIndicator Byte = "0100"
 
--- Returns character capacity per Version
+-- | Returns character capacity per Version
 capacities :: CorrectionLevel -> Mode -> [(Version, Int)]
 capacities correctionLevel mode = do
   let perCorrectionLevel = filter (\c -> c !! 1 == show correctionLevel) rawCapacities
   foldl' (\acc c -> acc ++ [(readInt $ head c, readInt $ c !! (modeIndex mode + 2))]) [] perCorrectionLevel
 
--- Returns size of character count indicator
-characterCountIndicatorSize :: Version -> Mode -> Either Exception Int
+characterCountIndicatorSize :: Version -> Mode -> Int
 characterCountIndicatorSize v m
-  | v >= 1 && v <= 9 = Right ([10, 9, 8, 8] !! i)
-  | v >= 10 && v <= 26 = Right ([12, 11, 16, 10] !! i)
-  | v >= 27 && v <= 40 = Right ([14, 13, 16, 12] !! i)
-  | otherwise = Left InvalidVersionOrMode
+  | v `elem` [1 .. 9] = [10, 9, 8, 8] !! i
+  | v `elem` [10 .. 26] = [12, 11, 16, 10] !! i
+  | otherwise = [14, 13, 16, 12] !! i
   where
     i = modeIndex m
 
--- Returns total number of required bits
-totalBits :: Version -> CorrectionLevel -> Either Exception Int
-totalBits v cl = do
-  case errorCodewordAndBlock v cl of
-    Just r -> Right (readInt (r !! 2) * 8)
-    Nothing -> Left InvalidVersionOrMode
+-- | Returns character count indicator, a binary, left-padded string
+-- representing the length of the input
+characterCountIndicator :: Input -> Mode -> Version -> BitString
+characterCountIndicator i m v = leftPad (characterCountIndicatorSize v m) '0' binaryLength
+  where
+    binaryLength = toBin (length i)
 
--- Returns a list of tuples such that (#Groups, #CodeWords per group) per group (1-based)
+-- | Returns total number of required bits
+totalBits :: Version -> CorrectionLevel -> Int
+totalBits v cl = readInt (r !! 2) * 8
+  where
+    r = errorCodewordAndBlock v cl
+
+-- | Returns a list of tuples such that (#Groups, #CodeWords per group) per group (1-based)
 -- e.g. (groupsCodeWords version cl) !! 0 -> returns groups codeword information for group 1
-groupsCodeWords :: Version -> CorrectionLevel -> Either Exception [(Int, Int)]
-groupsCodeWords v cl = do
-  case errorCodewordAndBlock v cl of
-    Just r -> Right [(readInt (r !! 4), readInt (r !! 5)), (readInt (r !! 6), readInt (r !! 7))]
-    Nothing -> Left InvalidVersionOrMode
+groupsCodeWords :: Version -> CorrectionLevel -> [(Int, Int)]
+groupsCodeWords v cl = [(readInt (r !! 4), readInt (r !! 5)), (readInt (r !! 6), readInt (r !! 7))]
+  where
+    r = errorCodewordAndBlock v cl
 
-errorCorrectionCodeWordsPerBlock :: Version -> CorrectionLevel -> Either Exception Int
-errorCorrectionCodeWordsPerBlock v cl = do
-  case errorCodewordAndBlock v cl of
-    Just r -> Right (readInt (r !! 3))
-    Nothing -> Left InvalidVersionOrMode
+errorCorrectionCodeWordsPerBlock :: Version -> CorrectionLevel -> Int
+errorCorrectionCodeWordsPerBlock v cl = readInt $ errorCodewordAndBlock v cl !! 3
 
 remainderBits :: Version -> Int
 remainderBits v = readInt (record !! 1)
@@ -128,8 +128,9 @@ rawAlignmentPatternLocations = Map.fromList $ map split $ unsafeReadCSVFile "ali
 rawRemainderBits :: [[String]]
 rawRemainderBits = unsafeReadCSVFile "remainder.csv"
 
-errorCodewordAndBlock :: (Show a1, Show a2) => a1 -> a2 -> Maybe [String]
-errorCodewordAndBlock v cl = find (\r -> take 2 r == [show v, show cl]) rawErrorCodewordsAndBlock
+-- | We control both Version and CorrectionLevel, no need to handle Maybe
+errorCodewordAndBlock :: Version -> CorrectionLevel -> [String]
+errorCodewordAndBlock v cl = fromJust $ find (\r -> take 2 r == [show v, show cl]) rawErrorCodewordsAndBlock
 
 rawLogTable :: [(Int, Int)]
 rawLogTable = map split $ unsafeReadCSVFile "logarithms.csv"
@@ -159,37 +160,3 @@ rawFormatString = unsafeReadCSVFile "format.csv"
 
 rawVersionString :: [[String]]
 rawVersionString = unsafeReadCSVFile "version.csv"
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      

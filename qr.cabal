@@ -39,15 +39,18 @@ library
   import:               common-options
   hs-source-dirs:       src
   exposed-modules:      QR
-  other-modules:        QR.Encoding
-                        QR.Analysis,
-                        QR.ErrorCorrection,
+  other-modules:        QR.Encoding,
+                          QR.Encoding.Analysis,
+                          QR.Encoding.DataEncoding,
+                          QR.Encoding.ErrorEncoding,
+                          QR.Encoding.Grouping,
+                        QR.Layout,
+                          QR.Layout.FormatVersion,
+                          QR.Layout.Interleaving,
+                          QR.Layout.Masking,
+                          QR.Layout.ModulePlacement,
                         QR.Types,
                         QR.Constants,
-                        QR.Interleaving,
-                        QR.ModulePlacement,
-                        QR.Masking,
-                        QR.FormatVersion,
                         Utils,
                         Paths_qr
 

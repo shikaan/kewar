@@ -1,23 +1,22 @@
-module QR.ErrorCorrection (errorCodeWords, mkPolynomial, divP, Polynomial, toBitString, fromBitString, sumP) where
+module QR.Encoding.ErrorEncoding where
 
 import Data.Bits (xor)
-import Data.Either (fromRight)
+import Data.Char (digitToInt)
 import Data.Foldable (toList)
 import Data.List (foldl', nub)
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromMaybe)
 import qualified Data.Sequence as S
-import QR.Constants (errorCorrectionCodeWordsPerBlock, fromExponent, groupsCodeWords, modeIndicator, toExponent)
-import QR.Types (BitString, Codeword, CorrectionLevel, Exception, Group, Mode, Version)
-import Utils (chunksOf, leftPad, toBin, toDec)
-import Data.Char (digitToInt)
+import QR.Constants (errorCorrectionCodeWordsPerBlock, fromExponent, toExponent)
+import QR.Types (BitString, CorrectionLevel, Group, Version)
+import Utils (leftPad, toBin, toDec)
 
 -- | Returns a grouped list of Error CodeWords from a grouped Input
-errorCodeWords :: [Group] -> CorrectionLevel -> Version -> Either Exception [Group]
+errorCodeWords :: [Group] -> CorrectionLevel -> Version -> [Group]
 errorCodeWords groups cl version = do
-  let eccw = fromRight 0 (errorCorrectionCodeWordsPerBlock version cl)
+  let eccw = errorCorrectionCodeWordsPerBlock version cl
   let errorCodeWordsPerBlock b = map (leftPad 8 '0' . toBin) (toList (divP (mkMessage b) (mkGenerator eccw)))
 
-  Right (map (map errorCodeWordsPerBlock) groups)
+  map (map errorCodeWordsPerBlock) groups
 
 -- Galois Field Polynomial whose entries are 0<=n<=255
 type Polynomial = S.Seq Int
@@ -46,7 +45,7 @@ gfProduct a b
   | otherwise = fromExponent ((toExponent a + toExponent b) `mod` 255)
 
 gfPower :: Int -> Int -> Int
-gfPower a n = foldl' (\acc i -> QR.ErrorCorrection.gfProduct acc a) 1 [1 .. n]
+gfPower a n = foldl' (\acc i -> QR.Encoding.ErrorEncoding.gfProduct acc a) 1 [1 .. n]
 
 sumP :: Polynomial -> Polynomial -> Polynomial
 sumP a b = S.zipWith gfSum (zeroFill a) (zeroFill b)

@@ -1,4 +1,4 @@
-module QR.ModulePlacement where
+module QR.Layout.ModulePlacement where
 
 import Data.Array (Array, assocs, bounds, inRange, ixmap, listArray, (//))
 import Data.Bifunctor (bimap, first)
