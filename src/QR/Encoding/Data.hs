@@ -1,9 +1,17 @@
-module QR.Encoding.Data where
+module QR.Encoding.Data (encodeData) where
 
 import Data.Char (ord)
 import QR.Constants (alphaNumericValue, characterCountIndicator, modeIndicator, totalBits)
-import QR.Types (BitString, CorrectionLevel, Exception (..), Input, Mode (..), Version)
+import QR.Types (BitString, CorrectionLevel, Input, Mode (..), Version)
 import Utils (chunksOf, leftPad, leftUnpad, readInt, toBin)
+
+-- | Encodes an input string to a BitString with length as per QR specification
+encodeData :: Input -> Mode -> Version -> CorrectionLevel -> BitString
+encodeData i m v cl = byteString ++ padBytes byteString requiredBits
+  where
+    requiredBits = totalBits v cl
+    encoded = basicEncodeData i m v
+    byteString = toByteString $ encoded ++ terminator encoded requiredBits
 
 -- Convert Input to BitString
 byteToBitString :: Input -> BitString
@@ -22,33 +30,29 @@ numericToBitString i = concatMap (step . leftUnpad '0') (chunksOf 3 i)
   where
     transform = toBin . readInt
     step chunk
-      | length chunk == 1 = leftPad 4   '0' $ transform chunk
-      | length chunk == 2 = leftPad 7   '0' $ transform chunk
-      | otherwise         = leftPad 10  '0' $ transform chunk
+      | length chunk == 1 = leftPad 4 '0' $ transform chunk
+      | length chunk == 2 = leftPad 7 '0' $ transform chunk
+      | otherwise = leftPad 10 '0' $ transform chunk
 
 toBitString :: Mode -> Input -> BitString
 toBitString Numeric i = numericToBitString i
 toBitString AlphaNumeric i = alphaNumericToBitString i
 toBitString Byte i = byteToBitString i
 
--- TODO: handle errors
-encodeData :: Input -> Mode -> Version -> CorrectionLevel -> Either Exception BitString
-encodeData i m v cl = do
-  let encoded = toBitString m i
-  let requiredBits = totalBits v cl
-  let t = terminator encoded requiredBits
-  let mi = modeIndicator m
-  let cci = characterCountIndicator i m v
+-- | Converts input to BitString and chains it with mode indicator and character count indicator
+basicEncodeData :: Input -> Mode -> Version -> BitString
+basicEncodeData i m v = modeIndicator m ++ characterCountIndicator i m v ++ toBitString m i
 
-  let encoded' = mi ++ cci ++ encoded ++ t
-  -- to ensure multiple of 8
-  let remainder = if s == 0 then 0 else 8 - s where s = length encoded' `mod` 8
-  let t' = replicate remainder '0'
-  let encoded'' = encoded' ++ t'
-  let pbs = padBytes encoded'' requiredBits
-  Right (encoded'' ++ pbs)
+-- | Takes a BitString and ensures its length is multiple of 8 by adding 0s
+toByteString :: BitString -> BitString
+toByteString s
+  | rest == 0 = s
+  | otherwise = s ++ replicate (8 - rest) '0'
+  where
+    rest = length s `mod` 8
 
--- | Returns an approriate terminator string
+-- | Return as many '0' as needed to fill required length.
+-- Terminator string cannot be longer than 4 chars
 terminator :: BitString -> Int -> BitString
 terminator s requiredBits
   | delta >= 4 = "0000"

@@ -23,7 +23,7 @@ generate :: Input -> CorrectionLevel -> Either Exception Grid
 generate i cl = do
   let Right m = mode i
   let v = version i m cl
-  let Right encoded = encodeData i m v cl
+  let encoded = encodeData i m v cl
 
   let gs = groups encoded v cl
   let ecw = encodeError gs cl v

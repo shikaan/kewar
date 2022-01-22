@@ -1,7 +1,6 @@
 module QR.Encoding.Error (encodeError) where
 
 import Data.Bits (xor)
-import Data.Char (digitToInt)
 import Data.Foldable (toList)
 import Data.List (foldl', nub)
 import Data.Maybe (fromMaybe)
@@ -12,20 +11,18 @@ import Utils (leftPad, toBin, toDec)
 
 -- | Returns a grouped list of Error CodeWords from a grouped Input
 encodeError :: [Group] -> CorrectionLevel -> Version -> [Group]
-encodeError groups cl version = do
-  let eccw = errorCorrectionCodeWordsPerBlock version cl
-  let errorCodeWordsPerBlock b = map (leftPad 8 '0' . toBin) (toList (divP (mkMessage b) (mkGenerator eccw)))
+encodeError groups cl version = map (map $ encodeErrorBlock requiredCodeWords) groups
+  where
+    requiredCodeWords = errorCorrectionCodeWordsPerBlock version cl
 
-  map (map errorCodeWordsPerBlock) groups
+encodeErrorBlock :: Int -> [BitString] -> [BitString]
+encodeErrorBlock requiredCodeWords block = map (leftPad 8 '0' . toBin) $ toList (divP message generator)
+  where
+    message = mkMessage block
+    generator = mkGenerator requiredCodeWords
 
 -- Galois Field Polynomial whose entries are 0<=n<=255
 type Polynomial = S.Seq Int
-
-toBitString :: Polynomial -> BitString
-toBitString = show . toList
-
-fromBitString :: BitString -> Polynomial
-fromBitString = mkPolynomial . map digitToInt
 
 degree :: Polynomial -> Int
 degree p = S.length p - 1
@@ -44,40 +41,31 @@ gfProduct a b
   | a == 0 || b == 0 = 0
   | otherwise = fromExponent ((toExponent a + toExponent b) `mod` 255)
 
-gfPower :: Int -> Int -> Int
-gfPower a n = foldl' (\acc i -> QR.Encoding.Error.gfProduct acc a) 1 [1 .. n]
+-- | Ensure two Polynomials have the same degree
+normalize :: Polynomial -> Polynomial -> (Polynomial, Polynomial)
+normalize pa pb = ((S.><) pa (S.replicate (degree pa) 0), (S.><) pb (S.replicate (degree pb) 0))
 
 sumP :: Polynomial -> Polynomial -> Polynomial
-sumP a b = S.zipWith gfSum (zeroFill a) (zeroFill b)
+sumP a b = S.zipWith gfSum a' b'
   where
-    len = max (degree a) (degree b)
-    zeroFill a = a S.>< S.replicate (len - degree a) 0
-
-scaleP :: Polynomial -> Int -> Polynomial
-scaleP p s = S.mapWithIndex (\_ i -> i `gfProduct` s) p
+    (a', b') = normalize a b
 
 prodP :: Polynomial -> Polynomial -> Polynomial
 prodP a b = do
   let indices = [(i, j) | i <- [0 .. S.length a -1], j <- [0 .. S.length b -1]]
-  let degree = length $ nub (map (uncurry (+)) indices)
-  let emp = mkPolynomial (replicate degree 0)
+  let deg = length $ nub (map (uncurry (+)) indices)
+  let emp = mkPolynomial (replicate deg 0)
   foldl' (\acc (i, j) -> S.update (i + j) (acc ! (i + j) `gfSum` (a ! i `gfProduct` (b ! j))) acc) emp indices
 
 divP :: Polynomial -> Polynomial -> Polynomial
 divP dividend divisor = do
   let (dividend', divisor') = normalize dividend divisor
-  let r = foldl' (step divisor') dividend' [1 .. (S.length dividend)]
+  let r = foldl' (divisionStep divisor') dividend' [1 .. (S.length dividend)]
   S.take (S.length r - degree dividend - 1) r
   where
-    -- ensure dividend and divisor have same size
-    normalize d d' = do
-      ((S.><) d (S.replicate (degree d) 0), (S.><) d' (S.replicate (degree d') 0))
-
-    step divisor dividend i = do
-      let lead = dividend ! 0
-      let divisor' = S.mapWithIndex (\_ a -> a `gfProduct` lead) divisor
-      let dividend' = sumP dividend divisor'
-      S.drop 1 dividend'
+    divisionStep pa pb _ = S.drop 1 $ sumP pb pa'
+      where
+        pa' = S.mapWithIndex (\_ a -> a `gfProduct` (pb ! 0)) pa
 
 mkGenerator :: Int -> Polynomial
 mkGenerator 1 = mkPolynomial [1, 1]
