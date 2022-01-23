@@ -4,13 +4,9 @@ import Data.Array (bounds, elems, inRange, indices, (!))
 import Data.Either (fromRight)
 import Data.List (elemIndex, foldl', foldl1', groupBy)
 import Data.Maybe (fromJust)
-import QR.Layout.ModulePlacement (Grid, Module (Black, White), Position, cols, insert, rows, size')
+import QR.Layout.Types (Grid, Module (..), Position, cols, dimension, flipM, insert, rows)
 import QR.Types (Exception (InvalidMask))
 import Utils (consecutiveChunksOf, count)
-
-flipM :: Module -> Module
-flipM Black = White
-flipM White = Black
 
 mask :: Int -> (Position, Module) -> Either Exception (Position, Module)
 mask typ ((c, r), m)
@@ -31,9 +27,9 @@ sameModuleConsecutive :: [(Position, Module)] -> [[(Position, Module)]]
 sameModuleConsecutive = groupBy (\(_, v) (_, v') -> v == v')
 
 penalty1 :: Grid -> Int
-penalty1 g = (penalty . rows) g + (penalty . cols) g
+penalty1 g = (calc . rows) g + (calc . cols) g
   where
-    penalty gs = foldl' (\acc r -> acc + sum (map cost $ sameModuleConsecutive r)) 0 gs
+    calc gs = foldl' (\acc r -> acc + sum (map cost $ sameModuleConsecutive r)) 0 gs
     cost group
       | length group < 5 = 0
       | otherwise = length group - 2
@@ -61,7 +57,7 @@ penalty2 g = foldl' (\acc b -> acc + cost b) 0 boxes
       | otherwise = 0
 
 penalty3 :: Grid -> Int
-penalty3 g = (penalty . map modules . rows) g + (penalty . map modules . cols) g
+penalty3 g = (calc . map modules . rows) g + (calc . map modules . cols) g
   where
     -- Patterns to be matched
     pattern1 = [Black, White, Black, Black, Black, White, Black, White, White, White, White]
@@ -73,12 +69,12 @@ penalty3 g = (penalty . map modules . rows) g + (penalty . map modules . cols) g
     modules :: [(a, b)] -> [b]
     modules l = map snd l
 
-    penalty gs = 40 * foldl' (\s g' -> s + matches g') 0 gs
+    calc gs = 40 * foldl' (\s g' -> s + matches g') 0 gs
 
 penalty4 :: Grid -> Int
 penalty4 g = m * 10
   where
-    total = size' g
+    total = dimension g
     blacks = count (== Black) (elems g)
     ratio = (100 * blacks) `div` total
     q = ratio `mod` 5
@@ -90,6 +86,7 @@ penalty g = sum [penalty1 g, penalty2 g, penalty3 g, penalty4 g]
 maskGrid :: Grid -> [Position] -> Int -> Grid
 maskGrid g ps n = insert g (map (\p -> fromRight (p, g ! p) $ mask n (p, g ! p)) ps)
 
+optimalMask :: [Position] -> Grid -> (Grid, Int)
 optimalMask forbiddenLocations grid = (masked !! minMask, minMask)
   where
     locations = filter (`notElem` forbiddenLocations) (indices grid)

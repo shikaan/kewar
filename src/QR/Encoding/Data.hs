@@ -1,13 +1,14 @@
 module QR.Encoding.Data (encodeData) where
 
 import Data.Char (ord)
-import QR.Constants (alphaNumericValue, characterCountIndicator, modeIndicator, totalBits)
-import QR.Types (BitString, CorrectionLevel, Input, Mode (..), Version)
+import QR.Constants (alphaNumericValue, characterCountIndicator, modeIndicator, totalBits, groupsCodeWords)
+import QR.Types (BitString, CorrectionLevel, Input, Mode (..), Version, Group)
 import Utils (chunksOf, leftPad, leftUnpad, readInt, toBin)
+import Data.Foldable (foldl')
 
 -- | Encodes an input string to a BitString with length as per QR specification
-encodeData :: Input -> Mode -> Version -> CorrectionLevel -> BitString
-encodeData i m v cl = byteString ++ padBytes byteString requiredBits
+encodeData :: Input -> Mode -> Version -> CorrectionLevel -> [Group]
+encodeData i m v cl = groups (byteString ++ padBytes byteString requiredBits) v cl
   where
     requiredBits = totalBits v cl
     encoded = basicEncodeData i m v
@@ -65,3 +66,10 @@ padBytes :: BitString -> Int -> BitString
 padBytes s requiredBits = do
   let numberOfPadBytes = (requiredBits - length s) `div` 8
   concatMap (\i -> if odd i then "11101100" else "00010001") [1 .. numberOfPadBytes]
+
+-- | Returns a list of groups of blocks for a given bitstring
+groups :: BitString -> Version -> CorrectionLevel -> [Group]
+groups input version correctionLevel = do
+  let gcw = groupsCodeWords version correctionLevel
+  let dataCodewords = chunksOf 8 input :: [BitString]
+  fst $ foldl' (\(acc, cw) (gs, size) -> (acc ++ [take gs (chunksOf size cw)], drop (gs * size) cw)) ([], dataCodewords) gcw

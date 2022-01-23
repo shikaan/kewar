@@ -1,35 +1,39 @@
-module QR.Layout.FormatVersion where
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-import Data.Maybe (fromJust)
+module QR.Layout.FormatVersion (format, version, formatLocations, versionLocations) where
+
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Tuple (swap)
-import QR.Constants (format, version)
-import QR.Layout.ModulePlacement (Position, fromChar, insert, size, Grid)
-import QR.Types (CorrectionLevel)
+import QR.Constants (formatBitString, versionBitString)
+import QR.Layout.Constants (size)
+import QR.Layout.Types (Module, Position, fromChar)
+import QR.Types (CorrectionLevel, Version)
+
+version :: Version -> [(Position, Module)]
+version v = zip bottomLeft modules ++ zip topRight modules
+  where
+    modules = map (fromJust . fromChar) $ fromMaybe "" $ versionBitString v
+    bottomLeft : topRight : _ = versionLocations v
+
+format :: Int -> CorrectionLevel -> Int -> [(Position, Module)]
+format v cl pattern = zip tl modules ++ zip (concat rest) modules
+  where
+    modules = map (fromJust . fromChar) $ formatBitString cl pattern
+    tl : rest = formatLocations v
+
+versionLocations :: Version -> [[Position]]
+versionLocations v
+  | v < 7 = [[], []]
+  | otherwise = [l, map swap l]
+  where
+    s = size v
+    l = [(j, i) | j <- [0 .. 5], i <- [s -11 .. s -9]]
 
 formatLocations :: Int -> [[Position]]
 formatLocations v = do
-  [ [(0, 8), (1, 8), (2, 8), (3, 8), (4, 8), (5, 8), (7, 8), (8, 8), (8, 7), (8, 5), (8, 4), (8, 3), (8, 2), (8, 1), (8, 0)],
-    [(8, s), (8, s -1), (8, s -2), (8, s -3), (8, s -4), (8, s -5), (8, s -6), (s -7, 8), (s -6, 8), (s -5, 8), (s -4, 8), (s -3, 8), (s -2, 8), (s -1, 8), (s, 8)]
-    ]
-  where
-    s = size v - 1
-
-versionLocations :: Int -> [[Position]]
-versionLocations v = do
-  let x = [(0, s -11), (0, s -10), (0, s -9), (1, s -11), (1, s -10), (1, s -9), (2, s -11), (2, s -10), (2, s -9), (3, s -11), (3, s -10), (3, s -9), (4, s -11), (4, s -10), (4, s -9), (5, s -11), (4, s -10), (4, s -9)]
-  [x, map swap x]
+  let topRight = [(8, i) | i <- reverse [s -7 .. s -1]]
+  let bottomLeft = [(i, 8) | i <- [s -8 .. s -1]]
+  let topLeft = [(i, 8) | i <- [0 .. 5] ++ [7]] ++ [(8, i) | i <- reverse ([0 .. 5] ++ [7, 8])]
+  [topLeft, topRight, bottomLeft]
   where
     s = size v
-
-insertFormatAndVersion :: Grid -> Int -> CorrectionLevel -> Int-> Grid
-insertFormatAndVersion g v cl mp = do
-  let vS = version v
-  let vl = versionLocations v
-  let (vs1', vs2') = case vS of Just vs -> (zip (head vl) (map (fromJust . fromChar) vs), zip (last vl) (map (fromJust . fromChar) vs)); Nothing -> ([], [])
-
-  let fS = format cl mp
-  let fl = formatLocations v
-  let fl1' = zip (head fl) (map (fromJust . fromChar) fS)
-  let fl2' = zip (last fl) (map (fromJust . fromChar) fS)
-
-  insert g (vs1' ++ vs2' ++ fl1' ++ fl2')

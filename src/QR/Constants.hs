@@ -11,8 +11,8 @@ module QR.Constants
     alignmentPatternLocations,
     alphaNumericValue,
     allowedAlphaNumericValues,
-    format,
-    version,
+    formatBitString,
+    versionBitString,
   )
 where
 
@@ -81,8 +81,10 @@ remainderBits v = readInt (record !! 1)
   where
     record = fromJust $ find (\i -> head i == show v) rawRemainderBits
 
-alignmentPatternLocations :: Version -> [Int]
-alignmentPatternLocations = (Map.!) rawAlignmentPatternLocations
+alignmentPatternLocations :: Version -> [(Int, Int)]
+alignmentPatternLocations v = [(x -2, y -2) | x <- baseCoordinates, y <- baseCoordinates] 
+  where
+    baseCoordinates = (Map.!) rawAlignmentPatternLocations v
 
 alphaNumericValue :: Char -> Int
 alphaNumericValue = (Map.!) rawAlphaNumericValues
@@ -90,13 +92,13 @@ alphaNumericValue = (Map.!) rawAlphaNumericValues
 allowedAlphaNumericValues :: [Char]
 allowedAlphaNumericValues = Map.keys rawAlphaNumericValues
 
-format :: CorrectionLevel -> Int -> BitString
-format errorCorrection maskPattern = record !! 2
+formatBitString :: CorrectionLevel -> Int -> BitString
+formatBitString errorCorrection maskPattern = record !! 2
   where
     record = fromJust $ find ([show errorCorrection, show maskPattern] `isPrefixOf`) rawFormatString
 
-version :: Version -> Maybe BitString
-version v
+versionBitString :: Version -> Maybe BitString
+versionBitString v
   | v < 7 = Nothing
   | otherwise = do
     case find (\i -> show v == head i) rawVersionString of
