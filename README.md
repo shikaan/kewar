@@ -6,7 +6,11 @@ Generate QR code from given input [version 0.1.0.0]
 ## Installation
 
 ```
-cabal install qr
+cabal install exe:qr
+
+# or
+
+cabal install lib:qr
 ```
 
 ## CLI
