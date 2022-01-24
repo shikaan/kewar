@@ -35,44 +35,51 @@ common common-options
 
   default-language:     Haskell2010
 
+common other-modules
+  other-modules:        QR.Encoding,
+                          QR.Encoding.Analysis,
+                          QR.Encoding.Data,
+                          QR.Encoding.Error,
+                        QR.Layout,
+                          QR.Layout.Constants,
+                          QR.Layout.Data,
+                          QR.Layout.FormatVersion,
+                          QR.Layout.FunctionalPatterns,
+                          QR.Layout.Interleaving,
+                          QR.Layout.Masking,
+                          QR.Layout.Types,
+                        QR.Constants,
+                        QR.Types,
+                        Paths_qr,
+                        Utils
+
 library 
-  import:               common-options
+  import:               common-options, 
+                        other-modules
   hs-source-dirs:       src
   exposed-modules:      QR
-  other-modules:        QR.Encoding
-                        QR.Analysis,
-                        QR.ErrorCorrection,
-                        QR.Types,
-                        QR.Constants,
-                        QR.Interleaving,
-                        QR.ModulePlacement,
-                        QR.Masking,
-                        QR.FormatVersion,
-                        Utils,
-                        Paths_qr
 
 executable qr 
   import:               common-options
   hs-source-dirs:       bin
   main-is:              QR/CLI.hs
-  other-modules:        QR.CLI.Grid
+  other-modules:        QR.CLI.Grid,
+                        Paths_qr
   build-depends:        qr
   ghc-options:          -threaded
                         -rtsopts
                         -with-rtsopts=-N
 
 test-suite qr-test  
-  import:               common-options
+  import:               common-options,
+                        other-modules
   type:                 exitcode-stdio-1.0
   hs-source-dirs:       test,
                         src
   main-is:              Spec.hs
-  other-modules:        Test.QR.Masking,
-                        QR.Masking,
-                        Test.QR.Analysis,
-                        QR.Analysis,
-                        Test.QR.Encoding,
-                        QR.Encoding
+  other-modules:        Test.QR.Encoding.Analysis,
+                        Test.QR.Encoding.Data,
+                        Test.QR.Layout.Masking
   build-depends:        qr,
                         HUnit
   ghc-options:          -threaded

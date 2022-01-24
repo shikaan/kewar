@@ -1,4 +1,4 @@
-module QR.Interleaving (interleave) where
+module QR.Layout.Interleaving (interleave) where
 
 import Data.List (transpose)
 import QR.Constants (remainderBits)
