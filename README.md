@@ -9,5 +9,4 @@ See README for more info
 
 ## TODOs
 
-- []: split components meaningfully
 - []: write some tests

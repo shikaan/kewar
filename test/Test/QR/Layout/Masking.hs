@@ -1,14 +1,14 @@
-module Test.QR.Masking (suite) where
+module Test.QR.Layout.Masking (suite) where
 
-import QR.Masking (penalty1, penalty2, penalty3, penalty4)
-import QR.ModulePlacement (Grid, Module (Black, White), insert, mkGrid, singleton, translateTo, Position)
+import QR.Layout.Masking (penalty1, penalty2, penalty3, penalty4)
+import QR.Layout.Types (Grid, Module (..), Position, insert, mkGrid, moveTo)
 import Test.HUnit (Test (..), assertEqual)
 
 grid :: Int -> Int -> Grid
 grid r c = mkGrid ((0, 0), (c - 1, r - 1))
 
 -- TODO: copy-pasted
-finder :: [(Position , Module)]
+finder :: [(Position, Module)]
 finder = do
   let whitePositions = [(1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (1, 2), (1, 3), (1, 4), (1, 5), (2, 5), (3, 5), (4, 5), (5, 5), (5, 2), (5, 3), (5, 4)]
   let whites = zip whitePositions (repeat White)
@@ -25,7 +25,7 @@ penalty1Test = do
 
   [ TestLabel "when checking a singleton" $
       TestList
-        [ TestCase (assertEqual "return 0" 0 (penalty1 singleton))
+        [ TestCase (assertEqual "return 0" 0 (penalty1 $ grid 1 1))
         ],
     TestLabel "when checking a full grid" $
       TestList
@@ -50,7 +50,7 @@ penalty2Test = do
 
   [ TestLabel "when checking a singleton" $
       TestList
-        [ TestCase (assertEqual "return 0" 0 (penalty2 singleton))
+        [ TestCase (assertEqual "return 0" 0 (penalty2 $ grid 1 1))
         ],
     TestLabel "when checking a full grid" $
       TestList
@@ -68,11 +68,11 @@ penalty2Test = do
 penalty3Test :: [Test]
 penalty3Test = do
   let empty = grid 20 20 -- v1
-  let fs = map (insert empty) [finder, translateTo (13, 0) finder, translateTo (0, 13) finder]
+  let fs = map (insert empty) [finder, moveTo (13, 0) finder, moveTo (0, 13) finder]
 
   [ TestLabel "when checking a singleton" $
       TestList
-        [ TestCase (assertEqual "return 0" 0 (penalty3 singleton))
+        [ TestCase (assertEqual "return 0" 0 (penalty3 $ grid 1 1))
         ],
     TestLabel "when checking a finders pattern" $
       TestList

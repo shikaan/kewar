@@ -1,4 +1,4 @@
-module QR.Encoding.Data (encodeData) where
+module QR.Encoding.Data (encodeData, toBitString) where
 
 import Data.Char (ord)
 import QR.Constants (alphaNumericValue, characterCountIndicator, modeIndicator, totalBits, groupsCodeWords)
