@@ -16,7 +16,10 @@ extra-doc-files:     README.md
 tested-with:         GHC == 8.8.3
 
 common common-options
-  build-depends:        base, containers, array, split
+  build-depends:        array       >= 0.5.4 && < 0.6,
+                        base        >= 4.14.3 && < 4.15,
+                        containers  >= 0.6.5 && < 0.7,
+                        split       >= 0.2.3 && < 0.3,
 
   ghc-options:          -Wall
                         -Wcompat
@@ -52,6 +55,7 @@ common other-modules
                         QR.Types,
                         Paths_qr,
                         Utils
+  autogen-modules:      Paths_qr
 
 library 
   import:               common-options, 

@@ -1,0 +1,12 @@
+active-repositories: hackage.haskell.org:merge
+constraints: any.HUnit ==1.6.2.0,
+             any.array ==0.5.4.0,
+             any.base ==4.14.3.0,
+             any.call-stack ==0.4.0,
+             any.containers ==0.6.5.1,
+             any.deepseq ==1.4.4.0,
+             any.ghc-prim ==0.6.1,
+             any.integer-gmp ==1.0.3.0,
+             any.rts ==1.0.1,
+             any.split ==0.2.3.4
+index-state: hackage.haskell.org 2022-01-15T16:49:37Z
