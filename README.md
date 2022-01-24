@@ -1,12 +1,50 @@
 # qr
+Generate QR code from given input [version 0.1.0.0]
 
-[![Hackage](https://img.shields.io/hackage/v/qr.svg?logo=haskell)](https://hackage.haskell.org/package/qr)
-[![Stackage Lts](http://stackage.org/package/qr/badge/lts)](http://stackage.org/lts/package/qr)
-[![Stackage Nightly](http://stackage.org/package/qr/badge/nightly)](http://stackage.org/nightly/package/qr)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-See README for more info
+## Installation
 
-## TODOs
+```
+cabal install qr
+```
 
-- []: write some tests
+## CLI
+
+### Example
+
+```bash
+$ qr --error-correction=H "Hello World"
+```
+
+### Usage 
+
+```bash
+$ qr [options] [INPUT]
+```
+
+qr is a tool to generate QR codes from any supported string,
+utilizing an error correction level to allow data recovery.
+
+For more information on QR codes: https://www.qrcode.com/en/
+
+### Options
+  -v         --version                   print qr version
+  -h         --help                      print this help
+  -e[LEVEL]  --error-correction[=LEVEL]  use error correction LEVEL for encoding. Defaults to Q
+
+
+## Library
+
+```haskell
+module Main where
+
+import QR (generate, CorrectionLevel(Q))
+import MyModule (doStuff)
+
+main = do
+  let input = "my string"
+  case generate input Q of
+    Left e -> print e
+    Right grid -> doStuff grid
+```
