@@ -29,10 +29,12 @@ utilizing an error correction level to allow data recovery.
 For more information on QR codes: https://www.qrcode.com/en/
 
 ### Options
+
+```
   -v         --version                   print qr version
   -h         --help                      print this help
   -e[LEVEL]  --error-correction[=LEVEL]  use error correction LEVEL for encoding. Defaults to Q
-
+```
 
 ## Library
 
