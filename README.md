@@ -8,11 +8,11 @@ Generate Kewar code from given input string
 ## Installation
 
 ```
-cabal install exe:qr
+cabal install exe:kewar
 
 # or
 
-cabal install lib:qr
+cabal install lib:kewar
 ```
 
 ## CLI
@@ -20,19 +20,19 @@ cabal install lib:qr
 ### Example
 
 ```bash
-$ qr --error-correction=H "Hello World"
+$ kewar --error-correction=H "Hello World"
 ```
 
 ### Usage 
 
 ```bash
-$ qr [options] [INPUT]
+$ kewar [options] [INPUT]
 ```
 
-qr is a tool to generate Kewar codes from any supported string,
+kewar is a tool to generate QR codes from any supported string,
 utilizing an error correction level to allow data recovery.
 
-For more information on Kewar codes: https://www.qrcode.com/en/
+For more information on QR codes: https://www.qrcode.com/en/
 
 ### Options
 

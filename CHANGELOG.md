@@ -1,6 +1,6 @@
 # Changelog
 
-`qr` uses [PVP Versioning][1].
+`kewar` uses [PVP Versioning][1].
 
 ## 0.0.0.0
 
