@@ -1,12 +1,12 @@
-module QR.Encoding.Data (encodeData, toBitString) where
+module Kewar.Encoding.Data (encodeData, toBitString) where
 
 import Data.Char (ord)
-import QR.Constants (alphaNumericValue, characterCountIndicator, modeIndicator, totalBits, groupsCodeWords)
-import QR.Types (BitString, CorrectionLevel, Input, Mode (..), Version, Group)
+import Kewar.Constants (alphaNumericValue, characterCountIndicator, modeIndicator, totalBits, groupsCodeWords)
+import Kewar.Types (BitString, CorrectionLevel, Input, Mode (..), Version, Group)
 import Utils (chunksOf, leftPad, leftUnpad, readInt, toBin)
 import Data.Foldable (foldl')
 
--- | Encodes an input string to a BitString with length as per QR specification
+-- | Encodes an input string to a BitString with length as per Kewar specification
 encodeData :: Input -> Mode -> Version -> CorrectionLevel -> [Group]
 encodeData i m v cl = groups (byteString ++ padBytes byteString requiredBits) v cl
   where

@@ -1,4 +1,4 @@
-module QR.Layout.Types (Module (..), Position, Grid, fromChar, flipM, sumP, maxP, mkGrid, insertAt, insert, transpose, rows, cols, dimension, moveTo, overlapsWith) where
+module Kewar.Layout.Types (Module (..), Position, Grid, fromChar, flipM, sumP, maxP, mkGrid, insertAt, insert, transpose, rows, cols, dimension, moveTo, overlapsWith) where
 
 import Data.Array
 import Data.Bifunctor (bimap, first)

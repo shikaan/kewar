@@ -4,7 +4,7 @@
 -- Maintainer: Manuel Spagnolo <spagnolo.manu@gmail.com>
 --
 -- See README for more info
-module QR
+module Kewar
   ( generate,
     CorrectionLevel (..),
     Grid,
@@ -13,9 +13,9 @@ module QR
   )
 where
 
-import QR.Encoding (encodeData, encodeError, mode, version)
-import QR.Layout (Grid, Module (..), cols, placeBits)
-import QR.Types (CorrectionLevel (..), Exception, Input, Mode)
+import Kewar.Encoding (encodeData, encodeError, mode, version)
+import Kewar.Layout (Grid, Module (..), cols, placeBits)
+import Kewar.Types (CorrectionLevel (..), Exception, Input, Mode)
 
 generate :: Input -> CorrectionLevel -> Either Exception Grid
 generate i cl = case maybeMode of

@@ -1,15 +1,15 @@
-module QR.Layout.FunctionalPatterns (functionalPatterns) where
+module Kewar.Layout.FunctionalPatterns (functionalPatterns) where
 
-import QR.Constants (alignmentPatternLocations)
-import QR.Layout.Constants (size)
-import QR.Layout.Types
+import Kewar.Constants (alignmentPatternLocations)
+import Kewar.Layout.Constants (size)
+import Kewar.Layout.Types
   ( Module (..),
     Position,
     moveTo,
     overlapsWith,
     sumP,
   )
-import QR.Types (Version)
+import Kewar.Types (Version)
 
 functionalPatterns :: Version -> [(Position, Module)]
 functionalPatterns v = finders v ++ alignments v ++ timings v ++ darkModule v ++ separators v

@@ -3,7 +3,7 @@ module Utils (readInt, toBin, toDec, leftPad, chunksOf, count, consecutiveChunks
 import Data.Char (digitToInt, intToDigit)
 import Data.List (foldl')
 import Numeric (showIntAtBase)
-import QR.Types (BitString)
+import Kewar.Types (BitString)
 
 readInt :: String -> Int
 readInt = read

@@ -1,8 +1,8 @@
-module QR.Layout.Interleaving (interleave) where
+module Kewar.Layout.Interleaving (interleave) where
 
 import Data.List (transpose)
-import QR.Constants (remainderBits)
-import QR.Types (BitString, Group, Version)
+import Kewar.Constants (remainderBits)
+import Kewar.Types (BitString, Group, Version)
 
 interleave :: Version -> [Group] -> [Group] -> BitString
 interleave v dataGroups errorGroups

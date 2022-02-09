@@ -3,9 +3,9 @@ module Main (main) where
 import Control.Monad (when)
 import Data.List (find, nub)
 import Data.Version (showVersion)
-import qualified Paths_qr as PathsQR
-import QR (CorrectionLevel (..), generate)
-import QR.CLI.Grid (showG)
+import qualified Paths_kewar as PathsKewar
+import Kewar (CorrectionLevel (..), generate)
+import Kewar.CLI.Grid (showG)
 import System.Console.GetOpt (ArgDescr (NoArg, OptArg), ArgOrder (Permute), OptDescr (Option), getOpt, usageInfo)
 import System.Environment (getArgs)
 import System.Exit (exitFailure, exitSuccess)
@@ -59,7 +59,7 @@ parseCLIArguments argv =
 -- | Handlers
 handleVersion :: IO ()
 handleVersion = do
-  putStrLn $ "qr-" ++ showVersion PathsQR.version
+  putStrLn $ "kewar-" ++ showVersion PathsKewar.version
   exitSuccess
 
 handleHelp :: IO ()
@@ -77,7 +77,7 @@ handleError s = do
 header :: String
 header =
   unlines
-    [ "qr - generate QR code from given input [version " ++ showVersion PathsQR.version ++ "]",
+    [ "kewar - (pronounced QR) generate QR code from given input string [version " ++ showVersion PathsKewar.version ++ "]",
       "",
       usage
     ]
@@ -86,9 +86,9 @@ usage :: String
 usage = 
   unlines 
     [
-      "Usage: qr [options] [INPUT]",
+      "Usage: kewar [options] [INPUT]",
       "",
-      "qr is a tool to generate QR codes from any supported string,",
+      "kewar is a tool to generate QR codes from any supported string,",
       "utilizing an error correction level to allow data recovery.",
       "",
       "For more information on QR codes: https://www.qrcode.com/en/",

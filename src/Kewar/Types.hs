@@ -1,4 +1,4 @@
-module QR.Types
+module Kewar.Types
   ( Input,
     Mode (..),
     CorrectionLevel (..),

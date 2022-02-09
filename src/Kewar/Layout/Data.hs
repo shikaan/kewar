@@ -1,7 +1,7 @@
-module QR.Layout.Data (dataBits) where
+module Kewar.Layout.Data (dataBits) where
 
-import QR.Layout.Types (Module (..), Position)
-import QR.Types (BitString)
+import Kewar.Layout.Types (Module (..), Position)
+import Kewar.Types (BitString)
 
 dataBits :: Int -> BitString -> [Position] -> [(Position, Module)]
 dataBits s bitString forbiddenLocations = do

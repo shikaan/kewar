@@ -1,7 +1,7 @@
-module Test.QR.Encoding.Analysis where
+module Test.Kewar.Encoding.Analysis where
 
-import QR.Encoding.Analysis (mode)
-import QR.Types (Exception (InvalidCharacterSet), Mode (AlphaNumeric, Byte, Numeric))
+import Kewar.Encoding.Analysis (mode)
+import Kewar.Types (Exception (InvalidCharacterSet), Mode (AlphaNumeric, Byte, Numeric))
 import Test.HUnit (Test (TestCase, TestLabel, TestList), assertEqual)
 
 tests :: [Test]

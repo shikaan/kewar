@@ -1,13 +1,13 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module QR.Layout.FormatVersion (format, version, formatLocations, versionLocations) where
+module Kewar.Layout.FormatVersion (format, version, formatLocations, versionLocations) where
 
 import Data.Maybe (fromJust, fromMaybe)
 import Data.Tuple (swap)
-import QR.Constants (formatBitString, versionBitString)
-import QR.Layout.Constants (size)
-import QR.Layout.Types (Module, Position, fromChar)
-import QR.Types (CorrectionLevel, Version)
+import Kewar.Constants (formatBitString, versionBitString)
+import Kewar.Layout.Constants (size)
+import Kewar.Layout.Types (Module, Position, fromChar)
+import Kewar.Types (CorrectionLevel, Version)
 
 version :: Version -> [(Position, Module)]
 version v = zip bottomLeft modules ++ zip topRight modules

@@ -1,12 +1,12 @@
-module QR.Encoding.Error (encodeError) where
+module Kewar.Encoding.Error (encodeError) where
 
 import Data.Bits (xor)
 import Data.Foldable (toList)
 import Data.List (foldl', nub)
 import Data.Maybe (fromMaybe)
 import qualified Data.Sequence as S
-import QR.Constants (errorCorrectionCodeWordsPerBlock, fromExponent, toExponent)
-import QR.Types (BitString, CorrectionLevel, Group, Version)
+import Kewar.Constants (errorCorrectionCodeWordsPerBlock, fromExponent, toExponent)
+import Kewar.Types (BitString, CorrectionLevel, Group, Version)
 import Utils (leftPad, toBin, toDec)
 
 -- | Returns a grouped list of Error CodeWords from a grouped Input

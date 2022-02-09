@@ -1,7 +1,7 @@
-module QR.CLI.Grid (showG) where
+module Kewar.CLI.Grid (showG) where
 
 import Data.List (intercalate)
-import QR (Grid, Module(..), cols)
+import Kewar (Grid, Module(..), cols)
 
 join :: [[Char]] -> [Char]
 join = intercalate ""

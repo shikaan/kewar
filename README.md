@@ -1,5 +1,7 @@
-# qr
-Generate QR code from given input [version 0.1.0.0]
+# kewar
+(pronounced qr)
+
+Generate Kewar code from given input string
 
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -27,10 +29,10 @@ $ qr --error-correction=H "Hello World"
 $ qr [options] [INPUT]
 ```
 
-qr is a tool to generate QR codes from any supported string,
+qr is a tool to generate Kewar codes from any supported string,
 utilizing an error correction level to allow data recovery.
 
-For more information on QR codes: https://www.qrcode.com/en/
+For more information on Kewar codes: https://www.qrcode.com/en/
 
 ### Options
 
@@ -45,7 +47,7 @@ For more information on QR codes: https://www.qrcode.com/en/
 ```haskell
 module Main where
 
-import QR (generate, CorrectionLevel(Q))
+import Kewar (generate, CorrectionLevel(Q))
 import MyModule (doStuff)
 
 main = do

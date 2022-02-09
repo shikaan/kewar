@@ -1,4 +1,4 @@
-module QR.Constants
+module Kewar.Constants
   ( capacities,
     modeIndicator,
     characterCountIndicator,
@@ -22,8 +22,8 @@ import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Tuple (swap)
-import Paths_qr (getDataFileName)
-import QR.Types (BitString, CorrectionLevel, Input, Mode (AlphaNumeric, Byte, Numeric), Version)
+import Paths_kewar (getDataFileName)
+import Kewar.Types (BitString, CorrectionLevel, Input, Mode (AlphaNumeric, Byte, Numeric), Version)
 import System.IO.Unsafe (unsafePerformIO)
 import Utils (leftPad, readInt, toBin)
 

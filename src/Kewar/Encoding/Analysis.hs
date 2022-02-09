@@ -1,8 +1,8 @@
-module QR.Encoding.Analysis (mode, version) where
+module Kewar.Encoding.Analysis (mode, version) where
 
 import Data.Char (isDigit, isLatin1)
-import QR.Constants (allowedAlphaNumericValues, capacities)
-import QR.Types (Exception (InvalidCharacterSet), Input, Mode (AlphaNumeric, Byte, Numeric), Version, CorrectionLevel)
+import Kewar.Constants (allowedAlphaNumericValues, capacities)
+import Kewar.Types (Exception (InvalidCharacterSet), Input, Mode (AlphaNumeric, Byte, Numeric), Version, CorrectionLevel)
 import Data.List (find)
 import Data.Maybe (fromJust)
 

@@ -1,7 +1,7 @@
-module Test.QR.Layout.Masking (suite) where
+module Test.Kewar.Layout.Masking (suite) where
 
-import QR.Layout.Masking (penalty1, penalty2, penalty3, penalty4)
-import QR.Layout.Types (Grid, Module (..), Position, insert, mkGrid, moveTo)
+import Kewar.Layout.Masking (penalty1, penalty2, penalty3, penalty4)
+import Kewar.Layout.Types (Grid, Module (..), Position, insert, mkGrid, moveTo)
 import Test.HUnit (Test (..), assertEqual)
 
 grid :: Int -> Int -> Grid

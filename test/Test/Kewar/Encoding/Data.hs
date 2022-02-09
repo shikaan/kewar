@@ -1,8 +1,8 @@
-module Test.QR.Encoding.Data where
+module Test.Kewar.Encoding.Data where
 
-import QR.Encoding.Data (toBitString)
+import Kewar.Encoding.Data (toBitString)
 import Test.HUnit (Test (TestCase, TestLabel, TestList), assertEqual)
-import QR.Types (Mode(Numeric))
+import Kewar.Types (Mode(Numeric))
 
 numeric :: [Test]
 numeric = do

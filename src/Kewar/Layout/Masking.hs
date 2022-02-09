@@ -1,11 +1,11 @@
-module QR.Layout.Masking (mask, penalty1, penalty2, penalty3, penalty4, optimalMask, maskGrid) where
+module Kewar.Layout.Masking (mask, penalty1, penalty2, penalty3, penalty4, optimalMask, maskGrid) where
 
 import Data.Array (bounds, elems, inRange, indices, (!))
 import Data.Either (fromRight)
 import Data.List (elemIndex, foldl', foldl1', groupBy)
 import Data.Maybe (fromJust)
-import QR.Layout.Types (Grid, Module (..), Position, cols, dimension, flipM, insert, rows)
-import QR.Types (Exception (InvalidMask))
+import Kewar.Layout.Types (Grid, Module (..), Position, cols, dimension, flipM, insert, rows)
+import Kewar.Types (Exception (InvalidMask))
 import Utils (consecutiveChunksOf, count)
 
 mask :: Int -> (Position, Module) -> Either Exception (Position, Module)
