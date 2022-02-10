@@ -1,6 +1,5 @@
 module Kewar.Types
-  ( Input,
-    Mode (..),
+  ( Mode (..),
     CorrectionLevel (..),
     Exception (..),
     Version,
@@ -11,11 +10,19 @@ module Kewar.Types
   )
 where
 
-type Input = String
+data Mode = Numeric | AlphaNumeric | Byte deriving (Eq, Show)
 
-data Mode = Numeric | AlphaNumeric | Byte deriving (Eq, Show, Enum)
-
-data CorrectionLevel = L | M | Q | H deriving (Eq, Enum)
+-- | Correction Level allows reading QR codes in case they get damaged or unreadable.
+data CorrectionLevel
+  = -- | allows up to 7% data recovery
+    L
+  | -- | allows up to 15% data recovery
+    M
+  | -- | allows up to 25% data recovery
+    Q
+  | -- | allows up to 30% data recovery
+    H
+  deriving (Eq)
 
 instance Show CorrectionLevel where
   show L = "L"
@@ -33,10 +40,8 @@ type Block = [BitString]
 
 type Group = [Block]
 
-data Exception = InvalidCharacterSet | InvalidVersionOrMode | NotImplemented | InvalidMask deriving (Eq, Enum)
+data Exception = InvalidCharacterSet | InvalidMask deriving (Eq, Enum)
 
 instance Show Exception where
   show InvalidCharacterSet = "Input character set is not supported. Please provide a valid ISO 8859-1 string."
-  show InvalidVersionOrMode = ""
-  show NotImplemented = ""
-  show InvalidMask = ""
+  show InvalidMask = "Provided mask is not valid. Please provide a value between 0-7."

@@ -1,13 +1,13 @@
-module Kewar.Layout (placeBits, Grid, Module (..), cols) where
+module Kewar.Layout (placeBits, Grid, Module (..), Position, cols, rows) where
 
+import Kewar.Layout.Constants (size)
 import Kewar.Layout.Data (dataBits)
 import Kewar.Layout.FormatVersion (format, formatLocations, version, versionLocations)
 import Kewar.Layout.FunctionalPatterns (functionalPatterns)
 import Kewar.Layout.Interleaving (interleave)
 import Kewar.Layout.Masking (optimalMask)
-import Kewar.Layout.Types (Grid, Module (..), cols, insert, mkGrid)
+import Kewar.Layout.Types (Grid, Module (..), Position, cols, insert, mkGrid, rows)
 import Kewar.Types (CorrectionLevel, Group, Version)
-import Kewar.Layout.Constants (size)
 
 placeBits :: Version -> CorrectionLevel -> [Group] -> [Group] -> Grid
 placeBits v cl dataCodeWords errorCodeWords = do

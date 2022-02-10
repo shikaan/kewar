@@ -1,7 +1,7 @@
 # kewar
 (pronounced qr)
 
-Generate Kewar code from given input string
+Generate QR code from given input string
 
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 

@@ -2,12 +2,12 @@ module Kewar.Encoding.Data (encodeData, toBitString) where
 
 import Data.Char (ord)
 import Kewar.Constants (alphaNumericValue, characterCountIndicator, modeIndicator, totalBits, groupsCodeWords)
-import Kewar.Types (BitString, CorrectionLevel, Input, Mode (..), Version, Group)
+import Kewar.Types (BitString, CorrectionLevel, Mode (..), Version, Group)
 import Utils (chunksOf, leftPad, leftUnpad, readInt, toBin)
 import Data.Foldable (foldl')
 
 -- | Encodes an input string to a BitString with length as per Kewar specification
-encodeData :: Input -> Mode -> Version -> CorrectionLevel -> [Group]
+encodeData :: String -> Mode -> Version -> CorrectionLevel -> [Group]
 encodeData i m v cl = groups (byteString ++ padBytes byteString requiredBits) v cl
   where
     requiredBits = totalBits v cl
@@ -15,10 +15,10 @@ encodeData i m v cl = groups (byteString ++ padBytes byteString requiredBits) v 
     byteString = toByteString $ encoded ++ terminator encoded requiredBits
 
 -- Convert Input to BitString
-byteToBitString :: Input -> BitString
+byteToBitString :: String -> BitString
 byteToBitString = concatMap (leftPad 8 '0' . (toBin . ord))
 
-alphaNumericToBitString :: Input -> BitString
+alphaNumericToBitString :: String -> BitString
 alphaNumericToBitString i = do
   let sums = map (\j -> if length j == 2 then (head j * 45) + last j else head j) (chunksOf 2 $ map alphaNumericValue i)
   let initial = concatMap (leftPad 11 '0' . toBin) (init sums)
@@ -26,7 +26,7 @@ alphaNumericToBitString i = do
   let final = leftPad finalPad '0' (toBin (last sums))
   initial ++ final
 
-numericToBitString :: Input -> BitString
+numericToBitString :: String -> BitString
 numericToBitString i = concatMap (step . leftUnpad '0') (chunksOf 3 i)
   where
     transform = toBin . readInt
@@ -35,13 +35,13 @@ numericToBitString i = concatMap (step . leftUnpad '0') (chunksOf 3 i)
       | length chunk == 2 = leftPad 7 '0' $ transform chunk
       | otherwise = leftPad 10 '0' $ transform chunk
 
-toBitString :: Mode -> Input -> BitString
+toBitString :: Mode -> String -> BitString
 toBitString Numeric i = numericToBitString i
 toBitString AlphaNumeric i = alphaNumericToBitString i
 toBitString Byte i = byteToBitString i
 
 -- | Converts input to BitString and chains it with mode indicator and character count indicator
-basicEncodeData :: Input -> Mode -> Version -> BitString
+basicEncodeData :: String -> Mode -> Version -> BitString
 basicEncodeData i m v = modeIndicator m ++ characterCountIndicator i m v ++ toBitString m i
 
 -- | Takes a BitString and ensures its length is multiple of 8 by adding 0s

@@ -23,7 +23,7 @@ import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Tuple (swap)
 import Paths_kewar (getDataFileName)
-import Kewar.Types (BitString, CorrectionLevel, Input, Mode (AlphaNumeric, Byte, Numeric), Version)
+import Kewar.Types (BitString, CorrectionLevel, Mode (AlphaNumeric, Byte, Numeric), Version)
 import System.IO.Unsafe (unsafePerformIO)
 import Utils (leftPad, readInt, toBin)
 
@@ -55,7 +55,7 @@ characterCountIndicatorSize v m
 
 -- | Returns character count indicator, a binary, left-padded string
 -- representing the length of the input
-characterCountIndicator :: Input -> Mode -> Version -> BitString
+characterCountIndicator :: String -> Mode -> Version -> BitString
 characterCountIndicator i m v = leftPad (characterCountIndicatorSize v m) '0' binaryLength
   where
     binaryLength = toBin (length i)

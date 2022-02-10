@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                kewar
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis:            CLI and library to generate QR codes.
 description:         Generate QR codes from input string. Comes with CLI and as a library.
 category:            Data, QR
